@@ -28,7 +28,11 @@
                 text="New Quick Memo" 
                 description="Create a new quick memo">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <!-- Windows/Linux: Ctrl + Alt + M -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt M"/>
+            <!-- macOS: Command + Option + M -->
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt M"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta alt M"/>
         </action>
     </actions>
 </idea-plugin>
