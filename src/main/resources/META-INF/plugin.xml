@@ -41,7 +41,7 @@
             <add-to-group group-id="ToolsMenu" anchor="first"/>
 
             <!-- Windows/Linux: Ctrl + Alt + M -->
-            <keyboard-shortcut keymap="$default" first-keystroke="control M"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control M" replace-all="true"/>
 
             <!-- macOS: Command + Option + M -->
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt M"/>
