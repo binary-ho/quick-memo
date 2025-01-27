@@ -10,7 +10,7 @@
 
     - default-keymap
         - macOS: Command + Option + M
-        - windows/linux: Ctrl + Alt + M
+        - windows/linux: Ctrl + M
 
     - how to change keymap
         1. Settings/Preferences -> Keymap
@@ -39,7 +39,7 @@
             <add-to-group group-id="ToolsMenu" anchor="first"/>
 
             <!-- Windows/Linux: Ctrl + Alt + M -->
-            <keyboard-shortcut keymap="$default" first-keystroke="control alt M"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control M"/>
 
             <!-- macOS: Command + Option + M -->
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt M"/>
