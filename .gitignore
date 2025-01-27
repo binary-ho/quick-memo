@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Compiled files
+*.class
+
+# Logs
+*.log
+
+# Local configuration
+local.properties

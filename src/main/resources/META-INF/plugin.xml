@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idea-plugin>
+    <id>com.quickmemo.plugin</id>
+    <name>QuickMemo</name>
+    <vendor email="your.email@example.com" url="http://www.yourcompany.com">Your Company</vendor>
+
+    <description><![CDATA[
+    Quick memo plugin for JetBrains IDEs.
+    Features:
+    - Quick note-taking within IDE
+    - Automatic local storage
+    - Easy access through tool window
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="QuickMemo"
+                    secondary="true"
+                    icon="/icons/memo.svg"
+                    anchor="right"
+                    factoryClass="com.quickmemo.plugin.window.MemoToolWindowFactory"/>
+    </extensions>
+    
+    <actions>
+        <action id="QuickMemo.NewNote" 
+                class="com.quickmemo.plugin.action.NewMemoAction" 
+                text="New Quick Memo" 
+                description="Create a new quick memo">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt M"/>
+        </action>
+    </actions>
+</idea-plugin>
