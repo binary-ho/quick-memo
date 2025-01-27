@@ -16,9 +16,9 @@ dependencies {
 }
 
 intellij {
-    version.set("2023.3")  // 최신 버전으로 업데이트
-    type.set("GO")  // GoLand IDE 지원
-    plugins.set(listOf("org.jetbrains.plugins.go"))  // Go 플러그인 의존성 추가
+    version.set("2023.3")
+    type.set("IC")  
+    plugins.set(listOf())
 }
 
 tasks {
@@ -29,7 +29,15 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("231")
-        untilBuild.set("243.*")  // 호환성 범위 확장
+        untilBuild.set("243.*")
+    }
+
+    runIde {
+        // 매번 새로운 설정으로 시작 - IDE 설정을 저장할 임시 디렉토리 설정
+        systemProperty("idea.config.path", "${buildDir}/idea-sandbox/config-test")
+        systemProperty("idea.system.path", "${buildDir}/idea-sandbox/system-test")
+        systemProperty("idea.plugins.path", "${buildDir}/idea-sandbox/plugins-test")
+        systemProperty("idea.log.path", "${buildDir}/idea-sandbox/log-test")
     }
 
     signPlugin {

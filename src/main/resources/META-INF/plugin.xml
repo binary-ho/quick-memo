@@ -19,7 +19,10 @@
                     secondary="true"
                     icon="/icons/memo.svg"
                     anchor="right"
-                    factoryClass="com.quickmemo.plugin.window.MemoToolWindowFactory"/>
+                    factoryClass="com.quickmemo.plugin.window.MemoToolWindowFactory"
+                    canCloseContents="true"
+                    doNotActivateOnStart="true"
+                    style="FLOATING"/>
     </extensions>
     
     <actions>
