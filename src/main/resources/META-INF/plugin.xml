@@ -7,17 +7,21 @@
     <resource-bundle>icons.memo_light</resource-bundle>
 
     <description><![CDATA[
-    Free your Brain, Just Memo It\n
-    생각을 뇌에서 놓아주세요. 그냥 메모하세요
-
-    - default-keymap
-        - macOS: Command + Option + M
-        - windows/linux: Ctrl + M
-
-    - how to change keymap
-        1. Settings/Preferences -> Keymap
-        2. search "New Quick Memo"
-        3. change keymap
+    <p>Free your Brain, Just Memo It</p>
+    <p>생각을 뇌에서 놓아주세요. 그냥 메모하세요</p>
+    <br>
+    <p><b>Default Keymap:</b></p>
+    <ul>
+        <li>macOS: Command + Option + M</li>
+        <li>Windows/Linux: Ctrl + M</li>
+    </ul>
+    <br>
+    <p><b>How to change keymap:</b></p>
+    <ol>
+        <li>Settings/Preferences -> Keymap</li>
+        <li>Search "New Quick Memo"</li>
+        <li>Change keymap</li>
+    </ol>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
