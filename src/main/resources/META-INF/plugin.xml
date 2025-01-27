@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <idea-plugin>
     <id>com.quickmemo.plugin</id>
-    <name>QuickMemo</name>
-    <vendor email="your.email@example.com" url="http://www.yourcompany.com">Your Company</vendor>
+    <name>Quick Memo</name>
+    <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
 
     <description><![CDATA[
-    Quick memo plugin for JetBrains IDEs.
-    Features:
-    - Quick note-taking within IDE
-    - Automatic local storage
-    - Easy access through tool window
+    Free your Brain, Just Memo It
+    생각을 뇌에서 놓아주세요. 그냥 메모하세요
+
+    - default-keymap
+        - macOS: Command + Option + M
+        - windows/linux: Ctrl + Alt + M
+
+    - how to change keymap
+        1. Settings/Preferences -> Keymap
+        2. search "New Quick Memo"
+        3. change keymap
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -31,8 +37,10 @@
                 text="New Quick Memo" 
                 description="Create a new quick memo">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
+
             <!-- Windows/Linux: Ctrl + Alt + M -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt M"/>
+
             <!-- macOS: Command + Option + M -->
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt M"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta alt M"/>
