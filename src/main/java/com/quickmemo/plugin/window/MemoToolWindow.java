@@ -282,15 +282,22 @@ public class MemoToolWindow {
     }
 
     private void saveContent() {
-        if (currentMemo.isSelected()) {
-            Memo updatedMemo = new Memo(
-                currentMemo.getMemo().id(),
-                textArea.getText(),
-                currentMemo.getMemo().createdAt()
+        try {
+            if (currentMemo.isSelected()) {
+                Memo updatedMemo = new Memo(
+                    currentMemo.getMemo().id(),
+                    textArea.getText(),
+                    currentMemo.getMemo().createdAt()
+                );
+                memoService.updateMemo(updatedMemo);
+                refreshMemoList();
+                memos.repaint();
+            }
+        } catch (IllegalArgumentException e) {
+            Messages.showErrorDialog(
+                "용량 초과! 최대 약 64KB까지 저장할 수 있습니다.",
+                "메모 저장 실패!"
             );
-            memoService.updateMemo(updatedMemo);
-            refreshMemoList();
-            memos.repaint();
         }
     }
 
