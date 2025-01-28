@@ -6,7 +6,7 @@
     <idea-version since-build="233" until-build="242.*"/>
 
     <description><![CDATA[
-    <p>Free your Brain, Just Memo It</p>
+    <p>Just open to take notes in your IDE</p>
     <p>생각을 뇌에서 놓아주세요. 그냥 메모하세요</p>
     <br>
     <p><b>Default Keymap:</b></p>
@@ -15,7 +15,7 @@
         <li>Windows/Linux: Ctrl + Q</li>
     </ol>
     <br>
-    <p><b>How to change keymap:</b></p>
+    <p><b>Set up your preferred shortcut:</b></p>
     <ol>
         <li>Settings/Preferences -> Keymap</li>
         <li>Search "Open/Close Quick Memo"</li>
