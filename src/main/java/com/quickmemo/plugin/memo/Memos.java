@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-// TODO: 그냥 State가 Map을 가지고 있으면 안되는건가
 public class Memos {
+    private static final int MAX_MEMOS = 20;
     private final Map<String, Memo> memos;
 
     public Memos() {
@@ -18,12 +18,23 @@ public class Memos {
     }
 
     public void add(Memo memo) {
+        validateMemoLimit(memos.size());
         memos.putIfAbsent(memo.id(), memo);
     }
 
     public void addAll(List<Memo> memos) {
+        int totalSize = this.memos.size() + memos.size();
+        validateMemoLimit(totalSize);
         for (Memo memo : memos) {
             add(memo);
+        }
+    }
+
+    private void validateMemoLimit(int memoSize) {
+        if (memoSize >= MAX_MEMOS) {
+            throw new MemoLimitExceededException(
+                String.format("Cannot add more memos. Maximum limit is %d memos", MAX_MEMOS)
+            );
         }
     }
 
@@ -41,5 +52,13 @@ public class Memos {
 
     public boolean isEmpty() {
         return memos.isEmpty();
+    }
+
+    public int size() {
+        return memos.size();
+    }
+
+    public int remainingCapacity() {
+        return MAX_MEMOS - memos.size();
     }
 }

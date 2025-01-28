@@ -16,6 +16,7 @@ import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.CurrentMemo;
 import com.quickmemo.plugin.memo.Memo;
+import com.quickmemo.plugin.memo.MemoLimitExceededException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -210,10 +211,17 @@ public class MemoToolWindow {
     }
 
     private void createNewMemo() {
-        String id = memoService.createEmptyMemo();
-        refreshMemoList();
-        selectMemoById(id);
-        showMemoState();
+        try {
+            String id = memoService.createEmptyMemo();
+            refreshMemoList();
+            selectMemoById(id);
+            textArea.requestFocus();
+        } catch (MemoLimitExceededException e) {
+            Messages.showWarningDialog(
+                "메모는 최대 20개까지만 저장할 수 있습니다.",
+                "메모 갯수 초과!"
+            );
+        }
     }
 
     private void deleteSelectedMemo() {
