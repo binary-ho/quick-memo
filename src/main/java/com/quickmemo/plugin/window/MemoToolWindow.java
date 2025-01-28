@@ -12,6 +12,8 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.JBUI;
 import com.quickmemo.plugin.application.MemoService;
+import com.quickmemo.plugin.constant.ActionConstants;
+import com.quickmemo.plugin.constant.DialogConstants;
 import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.CurrentMemo;
@@ -38,6 +40,18 @@ public class MemoToolWindow {
     private static final JBLabel EMPTY_LABEL = getEmptyLabel();
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
 
+    // Layout
+    private static final String LAYOUT_MEMO = "MEMO";
+    private static final String LAYOUT_EMPTY = "EMPTY";
+
+    // Toolbar Names
+    private static final String TOOLBAR_LEFT = "MemoToolbarLeft";
+    private static final String TOOLBAR_RIGHT = "MemoToolbarRight";
+
+    // Empty State
+    private static final String EMPTY_STATE_NO_MEMO = "Click '+' to write your thoughts";
+    private static final String EMPTY_STATE_NO_MEMOS_IN_LIST = "Empty";
+
     public MemoToolWindow(Project project) {
         this.memoService = getMemoService(project);
         this.content = new JPanel(new BorderLayout());
@@ -56,8 +70,8 @@ public class MemoToolWindow {
         textArea.setWrapStyleWord(true);
 
         // 중앙 패널에 컴포넌트 추가
-        centerPanel.add(new JBScrollPane(textArea), "MEMO");
-        centerPanel.add(EMPTY_LABEL, "EMPTY");
+        centerPanel.add(new JBScrollPane(textArea), LAYOUT_MEMO);
+        centerPanel.add(EMPTY_LABEL, LAYOUT_EMPTY);
         
         // 메모 선택 시 내용 표시
         memos.addListSelectionListener(this::onMemoSelected);
@@ -80,22 +94,22 @@ public class MemoToolWindow {
         DefaultActionGroup rightGroup = new DefaultActionGroup();
         
         // 새 메모 버튼과 삭제 버튼 (왼쪽)
-        leftGroup.add(new AnAction("New Memo", "Create new memo", AllIcons.General.Add) {
+        leftGroup.add(new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 createNewMemo();
             }
         });
 
-        leftGroup.add(new AnAction("Delete Memo", "Delete selected memo", AllIcons.General.Remove) {
+        leftGroup.add(new AnAction(ActionConstants.ACTION_DELETE_MEMO, ActionConstants.ACTION_DELETE_MEMO_DESC, AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 if (currentMemo.isSelected()) {
                     int result = Messages.showYesNoDialog(
-                            "정말 삭제하시겠습니까?",
-                            "메모 삭제",
-                            "삭제!",
-                            "취소",
+                            DialogConstants.DELETE_MEMO_CONFIRM_CONTENT,
+                            DialogConstants.DELETE_MEMO_CONFIRM_TITLE,
+                            DialogConstants.DELETE_MEMO_CONFIRM_YES,
+                            DialogConstants.DELETE_MEMO_CONFIRM_NO,
                             Messages.getQuestionIcon());
                     
                     if (result == Messages.YES) {
@@ -106,7 +120,7 @@ public class MemoToolWindow {
         });
 
         // 메모 목록 보기 버튼 (오른쪽)
-        rightGroup.add(new AnAction("Show Memo List", "Show all memos", AllIcons.Actions.Minimap) {
+        rightGroup.add(new AnAction(ActionConstants.ACTION_SHOW_LIST, ActionConstants.ACTION_SHOW_LIST_DESC, AllIcons.Actions.Minimap) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 showMemoListPopup();
@@ -114,9 +128,9 @@ public class MemoToolWindow {
         });
         
         ActionToolbar leftToolbar = ActionManager.getInstance()
-                .createActionToolbar("MemoToolbarLeft", leftGroup, true);
+                .createActionToolbar(TOOLBAR_LEFT, leftGroup, true);
         ActionToolbar rightToolbar = ActionManager.getInstance()
-                .createActionToolbar("MemoToolbarRight", rightGroup, true);
+                .createActionToolbar(TOOLBAR_RIGHT, rightGroup, true);
         
         leftToolbar.setTargetComponent(content);
         rightToolbar.setTargetComponent(content);
@@ -161,7 +175,7 @@ public class MemoToolWindow {
     }
 
     private static @NotNull JBLabel getEmptyLabel() {
-        JBLabel emptyLabel = new JBLabel("+ 버튼을 눌러 생각을 옮겨보세요", SwingConstants.CENTER);
+        JBLabel emptyLabel = new JBLabel(EMPTY_STATE_NO_MEMO, SwingConstants.CENTER);
         emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
         emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
         return emptyLabel;
@@ -178,7 +192,7 @@ public class MemoToolWindow {
         
         List<Memo> currentMemos = memoService.getAllMemos();
         if (currentMemos.isEmpty()) {
-            JBLabel emptyListLabel = new JBLabel("메모 없음", SwingConstants.CENTER);
+            JBLabel emptyListLabel = new JBLabel(EMPTY_STATE_NO_MEMOS_IN_LIST, SwingConstants.CENTER);
             emptyListLabel.setFont(emptyListLabel.getFont().deriveFont((float) JBUI.scale(14)));
             emptyListLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
             listPanel.add(emptyListLabel, BorderLayout.CENTER);
@@ -190,7 +204,7 @@ public class MemoToolWindow {
         // 팝업 생성
         memoListPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(listPanel, memos)
-                .setTitle("Memo List")
+                .setTitle(DialogConstants.MEMO_LIST_TITLE)
                 .setMovable(true)
                 .setResizable(true)
                 .setMinSize(new Dimension(200, 300))
@@ -218,8 +232,8 @@ public class MemoToolWindow {
             textArea.requestFocus();
         } catch (MemoLimitExceededException e) {
             Messages.showWarningDialog(
-                "메모는 최대 20개까지만 저장할 수 있습니다.",
-                "메모 갯수 초과!"
+                DialogConstants.MEMO_LIMIT_REACHED_WARNING_MESSAGE,
+                DialogConstants.MEMO_LIMIT_REACHED_WARNING_TITLE
             );
         }
     }
@@ -247,11 +261,11 @@ public class MemoToolWindow {
     }
 
     private void showMemoState() {
-        ((CardLayout) centerPanel.getLayout()).show(centerPanel, "MEMO");
+        ((CardLayout) centerPanel.getLayout()).show(centerPanel, LAYOUT_MEMO);
     }
 
     private void showEmptyState() {
-        ((CardLayout) centerPanel.getLayout()).show(centerPanel, "EMPTY");
+        ((CardLayout) centerPanel.getLayout()).show(centerPanel, LAYOUT_EMPTY);
     }
 
     public void refreshMemoList() {
@@ -303,8 +317,8 @@ public class MemoToolWindow {
             }
         } catch (IllegalArgumentException e) {
             Messages.showErrorDialog(
-                "용량 초과! 최대 약 64KB까지 저장할 수 있습니다.",
-                "메모 저장 실패!"
+                DialogConstants.MEMO_SIZE_LIMIT_REACHED_ERROR_MESSAGE,
+                DialogConstants.MEMO_SIZE_LIMIT_REACHED_ERROR_TITLE
             );
         }
     }
