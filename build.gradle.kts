@@ -17,23 +17,23 @@ dependencies {
 
 intellij {
     version.set("2023.3")
-    type.set("IC")  
-    plugins.set(listOf())
+    type.set("IC")
+    plugins.set(listOf("com.intellij.platform.images"))
 }
 
 tasks {
     withType<JavaCompile> {
         sourceCompatibility = "17"
         targetCompatibility = "17"
+        options.encoding = "UTF-8"
     }
 
     patchPluginXml {
-        sinceBuild.set("231")
-        untilBuild.set("243.*")
+        sinceBuild.set("233")
+        untilBuild.set("233.*")
     }
 
     runIde {
-        // 매번 새로운 설정으로 시작 - IDE 설정을 저장할 임시 디렉토리 설정
         systemProperty("idea.config.path", "${buildDir}/idea-sandbox/config-test")
         systemProperty("idea.system.path", "${buildDir}/idea-sandbox/system-test")
         systemProperty("idea.plugins.path", "${buildDir}/idea-sandbox/plugins-test")
