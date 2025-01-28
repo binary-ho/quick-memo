@@ -3,11 +3,13 @@ package com.quickmemo.plugin.window;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
-import com.intellij.ui.components.JBList;
+import com.quickmemo.plugin.application.MemoService;
+import com.quickmemo.plugin.infrastructure.MemoState;
+import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.Memo;
-import com.quickmemo.plugin.service.MemoService;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -18,31 +20,29 @@ import java.util.List;
 public class MemoToolWindow {
     private final JPanel content;
     private final MemoService memoService;
-    private final JBList<Memo> memoList;
-    private final JBTextArea textArea;
+
     private final DefaultListModel<Memo> listModel;
-    private String currentMemoId;
+    private final JBList<Memo> memos;
+
+    private final JBTextArea textArea;
+    private Memo currentMemo;
 
     public MemoToolWindow(Project project) {
-        memoService = project.getService(MemoService.class);
-        content = new JPanel(new BorderLayout());
-        
-        // 초기 메모 생성
-        memoService.initializeDefaultMemoIfEmpty();
+        this.memoService = getMemoService(project);
+        this.content = new JPanel(new BorderLayout());
         
         // 왼쪽 패널: 메모 목록
-        listModel = new DefaultListModel<>();
-        memoList = new JBList<>(listModel);
-        memoList.setCellRenderer(new MemoListCellRenderer());
-        refreshMemoList();
-        
+        this.listModel = new DefaultListModel<>();
+        this.memos = new JBList<>(listModel);
+        memos.setCellRenderer(new MemoListCellRenderer());
+
         // 오른쪽 패널: 메모 내용
-        textArea = new JBTextArea();
+        this.textArea = new JBTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         
         // 메모 선택 시 내용 표시
-        memoList.addListSelectionListener(this::onMemoSelected);
+        memos.addListSelectionListener(this::onMemoSelected);
         
         // 메모 내용 변경 시 자동 저장
         textArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -65,6 +65,7 @@ public class MemoToolWindow {
                 createNewMemo();
             }
         });
+
         actionGroup.add(new AnAction("Delete Memo", "Delete selected memo", AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
@@ -76,7 +77,7 @@ public class MemoToolWindow {
         
         // 레이아웃 구성
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                new JBScrollPane(memoList),
+                new JBScrollPane(memos),
                 new JBScrollPane(textArea));
         splitPane.setDividerLocation(200);
         
@@ -85,79 +86,72 @@ public class MemoToolWindow {
         
         // 첫 번째 메모 선택
         if (!listModel.isEmpty()) {
-            memoList.setSelectedIndex(0);
+            memos.setSelectedIndex(0);
         }
     }
 
+    private @NotNull MemoService getMemoService(Project project) {
+        final MemoService memoService;
+        MemoState state = project.getService(MemoState.class);
+        MemoStateRepository repository = new MemoStateRepository(state);
+        memoService = new MemoService(repository);
+        return memoService;
+    }
+
     private void createNewMemo() {
-        String id = memoService.createMemo("New Memo");
+        String id = memoService.createEmptyMemo();
         refreshMemoList();
         selectMemoById(id);
     }
 
     private void deleteSelectedMemo() {
-        if (currentMemoId != null) {
-            memoService.deleteMemo(currentMemoId);
+        if (currentMemo != null) {
+            memoService.deleteMemo(currentMemo);
             refreshMemoList();
             if (!listModel.isEmpty()) {
-                memoList.setSelectedIndex(0);
+                memos.setSelectedIndex(0);
             } else {
                 textArea.setText("");
-                currentMemoId = null;
+                currentMemo = null;
             }
         }
     }
 
-    private void refreshMemoList() {
+    public void refreshMemoList() {
+        List<Memo> allMemos = this.memoService.getAllMemos();
         listModel.clear();
-        List<Memo> memos = memoService.getAllMemos();
-        memos.forEach(listModel::addElement);
+        allMemos.forEach(this.listModel::addElement);
     }
 
     private void onMemoSelected(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
-            Memo selectedMemo = memoList.getSelectedValue();
+            Memo selectedMemo = memos.getSelectedValue();
             if (selectedMemo != null) {
-                currentMemoId = selectedMemo.getId();
-                textArea.setText(selectedMemo.getContent());
+                currentMemo = selectedMemo;
+                textArea.setText(selectedMemo.content());
             }
         }
     }
 
     private void selectMemoById(String id) {
         for (int i = 0; i < listModel.size(); i++) {
-            if (listModel.getElementAt(i).getId().equals(id)) {
-                memoList.setSelectedIndex(i);
+            if (listModel.getElementAt(i).id().equals(id)) {
+                memos.setSelectedIndex(i);
                 break;
             }
         }
     }
 
     private void saveContent() {
-        if (currentMemoId != null) {
-            memoService.updateMemo(currentMemoId, textArea.getText());
+        if (currentMemo != null) {
+            currentMemo = new Memo(currentMemo.id(), textArea.getText(), currentMemo.createdAt());
+            memoService.updateMemo(currentMemo);
             refreshMemoList();
-            memoList.repaint();
+            memos.repaint();
         }
     }
 
     public JPanel getContent() {
         return content;
-    }
-
-    private static class MemoListCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                    boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof Memo memo) {
-                String title = memo.getContent().lines().findFirst().orElse("").trim();
-                if (title.isEmpty()) {
-                    title = "(빈 메모)";
-                }
-                setText(title);
-            }
-            return this;
-        }
     }
 }
