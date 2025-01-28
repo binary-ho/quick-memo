@@ -160,7 +160,7 @@ public class MemoToolWindow {
     }
 
     private static @NotNull JBLabel getEmptyLabel() {
-        JBLabel emptyLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
+        JBLabel emptyLabel = new JBLabel("+ 버튼을 눌러 생각을 적어보세요", SwingConstants.CENTER);
         emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
         emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
         return emptyLabel;
@@ -172,14 +172,11 @@ public class MemoToolWindow {
             return;
         }
 
-        // 실제 메모 상태 다시 확인
         List<Memo> currentMemos = memoService.getAllMemos();
         if (currentMemos.isEmpty()) {
-            Messages.showInfoMessage("메모가 없습니다.", "메모 목록");
+            Messages.showInfoMessage("메모가 비어있습니다.", "Memo List");
             return;
         }
-
-        // 메모 목록 갱신
         refreshMemoList();
 
         // 메모 목록 패널 생성
