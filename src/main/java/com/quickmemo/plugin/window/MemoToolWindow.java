@@ -14,6 +14,7 @@ import com.intellij.util.ui.JBUI;
 import com.quickmemo.plugin.application.MemoService;
 import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
+import com.quickmemo.plugin.memo.CurrentMemo;
 import com.quickmemo.plugin.memo.Memo;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,8 +33,9 @@ public class MemoToolWindow {
 
     private final JPanel centerPanel;
     private final JBTextArea textArea;
-    private final JBLabel emptyLabel;
-    private Memo currentMemo;
+
+    private static final JBLabel EMPTY_LABEL = getEmptyLabel();
+    private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
 
     public MemoToolWindow(Project project) {
         this.memoService = getMemoService(project);
@@ -51,15 +53,10 @@ public class MemoToolWindow {
         this.textArea = new JBTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-        
-        // 빈 상태 레이블
-        this.emptyLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
-        emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
-        emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
-        
+
         // 중앙 패널에 컴포넌트 추가
         centerPanel.add(new JBScrollPane(textArea), "MEMO");
-        centerPanel.add(emptyLabel, "EMPTY");
+        centerPanel.add(EMPTY_LABEL, "EMPTY");
         
         // 메모 선택 시 내용 표시
         memos.addListSelectionListener(this::onMemoSelected);
@@ -92,7 +89,7 @@ public class MemoToolWindow {
         leftGroup.add(new AnAction("Delete Memo", "Delete selected memo", AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                if (currentMemo != null) {
+                if (currentMemo.isSelected()) {
                     int result = Messages.showYesNoDialog(
                             "정말 삭제하시겠습니까?",
                             "메모 삭제",
@@ -162,6 +159,13 @@ public class MemoToolWindow {
         }
     }
 
+    private static @NotNull JBLabel getEmptyLabel() {
+        JBLabel emptyLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
+        emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
+        emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
+        return emptyLabel;
+    }
+
     private void showMemoListPopup() {
         if (memoListPopup != null && memoListPopup.isVisible()) {
             memoListPopup.cancel();
@@ -213,22 +217,23 @@ public class MemoToolWindow {
     }
 
     private void deleteSelectedMemo() {
-        if (currentMemo != null) {
-            Memo memoToDelete = currentMemo;
+        if (currentMemo.isSelected()) {
+            Memo memoToDelete = currentMemo.getMemo();
             memoService.deleteMemo(memoToDelete);
             
             SwingUtilities.invokeLater(() -> {
-                currentMemo = null;
+                currentMemo = CurrentMemo.UNSELECTED;
                 refreshMemoList();
                 
+                // 실제 메모 상태 다시 확인
                 List<Memo> remainingMemos = memoService.getAllMemos();
                 if (!remainingMemos.isEmpty()) {
                     memos.setSelectedIndex(0);
                     showMemoState();
-                    return;
+                } else {
+                    textArea.setText("");
+                    showEmptyState();
                 }
-                textArea.setText("");
-                showEmptyState();
             });
         }
     }
@@ -255,8 +260,8 @@ public class MemoToolWindow {
         if (!e.getValueIsAdjusting()) {
             Memo selectedMemo = memos.getSelectedValue();
             if (selectedMemo != null) {
-                currentMemo = selectedMemo;
-                textArea.setText(selectedMemo.content());
+                currentMemo = CurrentMemo.of(selectedMemo);
+                textArea.setText(currentMemo.getMemo().content());
                 showMemoState();
                 if (memoListPopup != null && memoListPopup.isVisible()) {
                     memoListPopup.cancel();
@@ -275,9 +280,13 @@ public class MemoToolWindow {
     }
 
     private void saveContent() {
-        if (currentMemo != null) {
-            currentMemo = new Memo(currentMemo.id(), textArea.getText(), currentMemo.createdAt());
-            memoService.updateMemo(currentMemo);
+        if (currentMemo.isSelected()) {
+            Memo updatedMemo = new Memo(
+                currentMemo.getMemo().id(),
+                textArea.getText(),
+                currentMemo.getMemo().createdAt()
+            );
+            memoService.updateMemo(updatedMemo);
             refreshMemoList();
             memos.repaint();
         }
