@@ -1,8 +1,8 @@
 package com.quickmemo.plugin.memo;
 
-public record Memo(String id, String content, String createdAt) {
-    private static final int MAX_CONTENT_SIZE_BYTES = 65535;
+import static com.quickmemo.plugin.memo.MemoConstants.MAX_CONTENT_SIZE_BYTES;
 
+public record Memo(String id, String content, String createdAt) {
     public Memo {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("id is required");

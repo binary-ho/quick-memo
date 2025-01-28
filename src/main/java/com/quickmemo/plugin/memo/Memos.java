@@ -5,8 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.quickmemo.plugin.memo.MemoConstants.MAX_MEMO_COUNT;
+
 public class Memos {
-    private static final int MAX_MEMOS = 20;
     private final Map<String, Memo> memos;
 
     public Memos() {
@@ -31,9 +32,9 @@ public class Memos {
     }
 
     private void validateMemoLimit(int memoSize) {
-        if (memoSize >= MAX_MEMOS) {
+        if (memoSize >= MAX_MEMO_COUNT) {
             throw new MemoLimitExceededException(
-                String.format("Cannot add more memos. Maximum limit is %d memos", MAX_MEMOS)
+                String.format("Cannot add more memos. Maximum limit is %d memos", MAX_MEMO_COUNT)
             );
         }
     }
@@ -59,6 +60,6 @@ public class Memos {
     }
 
     public int remainingCapacity() {
-        return MAX_MEMOS - memos.size();
+        return MAX_MEMO_COUNT - memos.size();
     }
 }
