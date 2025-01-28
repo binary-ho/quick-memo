@@ -1,35 +1,17 @@
 package com.quickmemo.plugin.memo;
 
-public class Memo {
-    private final String id;
-    private final String content;
-    private final long createdAt;
+public record Memo(String id, String content, String createdAt) {
+    public Memo {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("id is required");
+        }
 
-//    public Memo(String content) {
-//        this.id = UUID.randomUUID().toString();
-//        this.content = content;
-//        this.createdAt = System.currentTimeMillis();
-//    }
+        if (content == null) {
+            throw new IllegalArgumentException("content is required");
+        }
 
-    public Memo(String id, String content, long createdAt) {
-        this.id = id;
-        this.content = content;
-        this.createdAt = createdAt;
-    }
-
-    public Memo updateContentAndGetNewMemo(String content) {
-        return new Memo(this.id, content, this.createdAt);
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public long getCreatedAt() {
-        return createdAt;
+        if (createdAt == null || createdAt.isBlank()) {
+            throw new IllegalArgumentException("createdAt is required");
+        }
     }
 }
