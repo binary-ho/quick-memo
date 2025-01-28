@@ -3,7 +3,7 @@
     <id>com.quickmemo.plugin</id>
     <name>Quick Memo</name>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
-    <idea-version since-build="233" until-build="242.*"/>
+    <idea-version since-build="232" until-build="243.*"/>
 
     <description><![CDATA[
     <p>Just open to take notes in your IDE</p>
