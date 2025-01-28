@@ -9,9 +9,6 @@ import java.util.UUID;
 public final class MemoService {
     private final MemoRepository memoRepository;
     private static final String WELCOME_MEMO = """
-    Free your Brain, Just Memo It
-    생각을 뇌에서 놓아주세요. 그냥 메모하세요
-    
     default-keymap
     - macOS: Option + Shift + M
     - windows/linux: Ctrl + Q
