@@ -49,7 +49,7 @@ public class MemoToolWindow {
     private static final String TOOLBAR_RIGHT = "MemoToolbarRight";
 
     // Empty State
-    private static final String EMPTY_STATE_NO_MEMO = "Click '+' to write your thoughts";
+    private static final String EMPTY_STATE_NO_MEMO = "Click '+' to write it out";
     private static final String EMPTY_STATE_NO_MEMOS_IN_LIST = "Empty";
 
     public MemoToolWindow(Project project) {
