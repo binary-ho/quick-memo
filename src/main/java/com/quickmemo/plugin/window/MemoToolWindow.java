@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
@@ -29,7 +30,9 @@ public class MemoToolWindow {
     private final JBList<Memo> memos;
     private JBPopup memoListPopup;
 
+    private final JPanel centerPanel;
     private final JBTextArea textArea;
+    private final JBLabel emptyLabel;
     private Memo currentMemo;
 
     public MemoToolWindow(Project project) {
@@ -41,10 +44,22 @@ public class MemoToolWindow {
         this.memos = new JBList<>(listModel);
         memos.setCellRenderer(new MemoListCellRenderer());
 
+        // 중앙 패널 (CardLayout 사용)
+        this.centerPanel = new JPanel(new CardLayout());
+        
         // 메모 내용 영역
         this.textArea = new JBTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
+        
+        // 빈 상태 레이블
+        this.emptyLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
+        emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
+        emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
+        
+        // 중앙 패널에 컴포넌트 추가
+        centerPanel.add(new JBScrollPane(textArea), "MEMO");
+        centerPanel.add(emptyLabel, "EMPTY");
         
         // 메모 선택 시 내용 표시
         memos.addListSelectionListener(this::onMemoSelected);
@@ -136,12 +151,14 @@ public class MemoToolWindow {
         
         // 레이아웃 구성
         content.add(toolbarPanel, BorderLayout.NORTH);
-        content.add(new JBScrollPane(textArea), BorderLayout.CENTER);
+        content.add(centerPanel, BorderLayout.CENTER);
         
         // 첫 번째 메모 선택
         refreshMemoList();
         if (!listModel.isEmpty()) {
             selectMemoById(listModel.getElementAt(0).id());
+        } else {
+            showEmptyState();
         }
     }
 
@@ -151,6 +168,16 @@ public class MemoToolWindow {
             return;
         }
 
+        // 실제 메모 상태 다시 확인
+        List<Memo> currentMemos = memoService.getAllMemos();
+        if (currentMemos.isEmpty()) {
+            Messages.showInfoMessage("메모가 없습니다.", "메모 목록");
+            return;
+        }
+
+        // 메모 목록 갱신
+        refreshMemoList();
+
         // 메모 목록 패널 생성
         JPanel listPanel = new JPanel(new BorderLayout());
         listPanel.add(new JBScrollPane(memos), BorderLayout.CENTER);
@@ -158,7 +185,7 @@ public class MemoToolWindow {
         // 팝업 생성
         memoListPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(listPanel, memos)
-                .setTitle("Memo List")
+                .setTitle("메모 목록")
                 .setMovable(true)
                 .setResizable(true)
                 .setMinSize(new Dimension(200, 300))
@@ -166,7 +193,7 @@ public class MemoToolWindow {
 
         // 리스트 버튼 기준으로 팝업 표시
         Component toolbarComponent = content.getComponent(0);
-        Component rightToolbar = ((JPanel)toolbarComponent).getComponent(1); // East 컴포넌트
+        Component rightToolbar = ((JPanel)toolbarComponent).getComponent(1);
         memoListPopup.showUnderneathOf(rightToolbar);
     }
 
@@ -182,25 +209,46 @@ public class MemoToolWindow {
         String id = memoService.createEmptyMemo();
         refreshMemoList();
         selectMemoById(id);
+        showMemoState();
     }
 
     private void deleteSelectedMemo() {
         if (currentMemo != null) {
-            memoService.deleteMemo(currentMemo);
-            refreshMemoList();
-            if (!listModel.isEmpty()) {
-                memos.setSelectedIndex(0);
-            } else {
-                textArea.setText("");
+            Memo memoToDelete = currentMemo;
+            memoService.deleteMemo(memoToDelete);
+            
+            SwingUtilities.invokeLater(() -> {
                 currentMemo = null;
-            }
+                refreshMemoList();
+                
+                List<Memo> remainingMemos = memoService.getAllMemos();
+                if (!remainingMemos.isEmpty()) {
+                    memos.setSelectedIndex(0);
+                    showMemoState();
+                    return;
+                }
+                textArea.setText("");
+                showEmptyState();
+            });
         }
+    }
+
+    private void showMemoState() {
+        ((CardLayout) centerPanel.getLayout()).show(centerPanel, "MEMO");
+    }
+
+    private void showEmptyState() {
+        ((CardLayout) centerPanel.getLayout()).show(centerPanel, "EMPTY");
     }
 
     public void refreshMemoList() {
         List<Memo> allMemos = this.memoService.getAllMemos();
         listModel.clear();
-        allMemos.forEach(this.listModel::addElement);
+        if (!allMemos.isEmpty()) {
+            allMemos.forEach(this.listModel::addElement);
+            memos.revalidate();
+            memos.repaint();
+        }
     }
 
     private void onMemoSelected(ListSelectionEvent e) {
@@ -209,6 +257,7 @@ public class MemoToolWindow {
             if (selectedMemo != null) {
                 currentMemo = selectedMemo;
                 textArea.setText(selectedMemo.content());
+                showMemoState();
                 if (memoListPopup != null && memoListPopup.isVisible()) {
                     memoListPopup.cancel();
                 }
