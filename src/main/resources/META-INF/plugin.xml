@@ -3,22 +3,22 @@
     <id>com.quickmemo.plugin</id>
     <name>Quick Memo</name>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
-    <idea-version since-build="233" until-build="233.*"/>
+    <idea-version since-build="233" until-build="242.*"/>
 
     <description><![CDATA[
     <p>Free your Brain, Just Memo It</p>
     <p>생각을 뇌에서 놓아주세요. 그냥 메모하세요</p>
     <br>
     <p><b>Default Keymap:</b></p>
-    <ul>
-        <li>macOS: Command + Option + M</li>
-        <li>Windows/Linux: Ctrl + M</li>
-    </ul>
+    <ol>
+        <li>macOS: Option + Shift + M</li>
+        <li>Windows/Linux: Ctrl + Q</li>
+    </ol>
     <br>
     <p><b>How to change keymap:</b></p>
     <ol>
         <li>Settings/Preferences -> Keymap</li>
-        <li>Search "New Quick Memo"</li>
+        <li>Search "Open Quick Memo"</li>
         <li>Change keymap</li>
     </ol>
     ]]></description>
@@ -41,12 +41,12 @@
                 description="Open memo window">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
 
-            <!-- Windows/Linux: Ctrl + M -->
-            <keyboard-shortcut keymap="$default" first-keystroke="control M" replace-all="true"/>
+            <!-- Windows/Linux: Ctrl + Q -->
+            <keyboard-shortcut keymap="$default" first-keystroke="control Q"/>
 
-            <!-- macOS: Command + Option + M -->
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta alt M"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta alt M"/>
+            <!-- macOS: Option + Shift + M -->
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt shift M"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt shift M"/>
         </action>
     </actions>
 </idea-plugin>

@@ -13,8 +13,8 @@ public final class MemoService {
     생각을 뇌에서 놓아주세요. 그냥 메모하세요
     
     default-keymap
-    - macOS: Command + Option + M
-    - windows/linux: Ctrl + M
+    - macOS: Option + Shift + M
+    - windows/linux: Ctrl + Q
     """;
 
     private static final String EMPTY_MEMO = "";
