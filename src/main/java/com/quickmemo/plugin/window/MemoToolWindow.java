@@ -177,7 +177,7 @@ public class MemoToolWindow {
         
         List<Memo> currentMemos = memoService.getAllMemos();
         if (currentMemos.isEmpty()) {
-            JBLabel emptyListLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
+            JBLabel emptyListLabel = new JBLabel("메모 없음", SwingConstants.CENTER);
             emptyListLabel.setFont(emptyListLabel.getFont().deriveFont((float) JBUI.scale(14)));
             emptyListLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
             listPanel.add(emptyListLabel, BorderLayout.CENTER);
@@ -189,7 +189,7 @@ public class MemoToolWindow {
         // 팝업 생성
         memoListPopup = JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(listPanel, memos)
-                .setTitle("메모 목록")
+                .setTitle("Memo List")
                 .setMovable(true)
                 .setResizable(true)
                 .setMinSize(new Dimension(200, 300))
