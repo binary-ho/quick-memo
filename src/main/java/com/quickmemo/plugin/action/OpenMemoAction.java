@@ -19,13 +19,17 @@ public class OpenMemoAction extends AnAction {
             return;
         }
 
-        openWindow(project);
+        toggleWindow(project);
     }
 
-    private void openWindow(Project project) {
+    private void toggleWindow(Project project) {
         ToolWindow window = getWindow(project);
         if (window != null) {
-            window.show();
+            if (window.isVisible()) {
+                window.hide();
+            } else {
+                window.show();
+            }
         }
     }
 

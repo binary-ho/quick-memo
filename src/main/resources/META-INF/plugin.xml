@@ -18,7 +18,7 @@
     <p><b>How to change keymap:</b></p>
     <ol>
         <li>Settings/Preferences -> Keymap</li>
-        <li>Search "Open Quick Memo"</li>
+        <li>Search "Open/Close Quick Memo"</li>
         <li>Change keymap</li>
     </ol>
     ]]></description>
@@ -36,9 +36,9 @@
 
     <actions>
         <action id="QuickMemo.OpenMemo" 
-                class="com.quickmemo.plugin.action.OpenMemoAction" 
-                text="Open Quick Memo" 
-                description="Open memo window">
+                class="com.quickmemo.plugin.action.OpenMemoAction"
+                text="Open/Close Quick Memo" 
+                description="Open/Close Memo window">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
 
             <!-- Windows/Linux: Ctrl + Q -->
