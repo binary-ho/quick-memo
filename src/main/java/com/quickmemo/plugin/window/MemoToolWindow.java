@@ -160,7 +160,7 @@ public class MemoToolWindow {
     }
 
     private static @NotNull JBLabel getEmptyLabel() {
-        JBLabel emptyLabel = new JBLabel("+ 버튼을 눌러 생각을 적어보세요", SwingConstants.CENTER);
+        JBLabel emptyLabel = new JBLabel("+ 버튼을 눌러 생각을 옮겨보세요", SwingConstants.CENTER);
         emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
         emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
         return emptyLabel;
@@ -250,7 +250,9 @@ public class MemoToolWindow {
         List<Memo> allMemos = this.memoService.getAllMemos();
         listModel.clear();
         if (!allMemos.isEmpty()) {
-            allMemos.forEach(this.listModel::addElement);
+            allMemos.stream()
+                    .sorted((m1, m2) -> m2.createdAt().compareTo(m1.createdAt())) // 최신순 정렬
+                    .forEach(this.listModel::addElement);
             memos.revalidate();
             memos.repaint();
         }
