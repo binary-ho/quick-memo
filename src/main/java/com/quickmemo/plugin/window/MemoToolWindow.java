@@ -172,16 +172,19 @@ public class MemoToolWindow {
             return;
         }
 
-        List<Memo> currentMemos = memoService.getAllMemos();
-        if (currentMemos.isEmpty()) {
-            Messages.showInfoMessage("메모가 비어있습니다.", "Memo List");
-            return;
-        }
-        refreshMemoList();
-
         // 메모 목록 패널 생성
         JPanel listPanel = new JPanel(new BorderLayout());
-        listPanel.add(new JBScrollPane(memos), BorderLayout.CENTER);
+        
+        List<Memo> currentMemos = memoService.getAllMemos();
+        if (currentMemos.isEmpty()) {
+            JBLabel emptyListLabel = new JBLabel("메모가 없습니다", SwingConstants.CENTER);
+            emptyListLabel.setFont(emptyListLabel.getFont().deriveFont((float) JBUI.scale(14)));
+            emptyListLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
+            listPanel.add(emptyListLabel, BorderLayout.CENTER);
+        } else {
+            refreshMemoList();
+            listPanel.add(new JBScrollPane(memos), BorderLayout.CENTER);
+        }
         
         // 팝업 생성
         memoListPopup = JBPopupFactory.getInstance()
