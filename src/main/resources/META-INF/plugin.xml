@@ -4,7 +4,6 @@
     <name>Quick Memo</name>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
     <idea-version since-build="233" until-build="233.*"/>
-<!--    <icon value="/icons/memo.svg"/>-->
 
     <description><![CDATA[
     <p>Free your Brain, Just Memo It</p>
@@ -32,9 +31,7 @@
                     icon="/icons/memo.svg"
                     anchor="right"
                     factoryClass="com.quickmemo.plugin.window.MemoToolWindowFactory"
-                    canCloseContents="true"
-                    style="FLOATING"/>
-        <projectService serviceImplementation="com.quickmemo.plugin.service.MemoService"/>
+                    canCloseContents="true"/>
     </extensions>
 
     <actions>

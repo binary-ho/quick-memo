@@ -18,7 +18,7 @@ dependencies {
 intellij {
     version.set("2023.3")
     type.set("IC")
-    plugins.set(listOf())
+    plugins.set(listOf("com.intellij.platform.images"))
 }
 
 tasks {

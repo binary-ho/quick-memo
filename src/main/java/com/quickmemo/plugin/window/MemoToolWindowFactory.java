@@ -8,13 +8,39 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class MemoToolWindowFactory implements ToolWindowFactory {
+    private static final int DEFAULT_SIZE = 400;
+    private static final Dimension DEFAULT_DIMENSION_SIZE = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        MemoToolWindow memoToolWindow = new MemoToolWindow(project);
-        ContentFactory contentFactory = ContentFactory.getInstance();
-        Content content = contentFactory.createContent(memoToolWindow.getContent(), "", false);
-        toolWindow.getContentManager().addContent(content);
         toolWindow.setType(ToolWindowType.FLOATING, null);
+
+        MemoToolWindow memoToolWindow = new MemoToolWindow(project);
+        JComponent component = memoToolWindow.getContent();
+
+        component.setPreferredSize(DEFAULT_DIMENSION_SIZE);
+        component.setSize(DEFAULT_DIMENSION_SIZE);
+
+        Content content = ContentFactory.getInstance()
+                .createContent(component, "", false);
+        toolWindow.getContentManager().addContent(content);
+
+        SwingUtilities.invokeLater(() -> {
+            Timer timer = new Timer(100, event -> {
+                Window win = SwingUtilities.getWindowAncestor(component);
+                if (win != null) {
+                    win.setPreferredSize(DEFAULT_DIMENSION_SIZE);
+                    win.setSize(DEFAULT_DIMENSION_SIZE);
+                    win.pack();
+                }
+                ((Timer) event.getSource()).stop();
+            });
+            timer.setRepeats(false);
+            timer.start();
+        });
     }
 }
