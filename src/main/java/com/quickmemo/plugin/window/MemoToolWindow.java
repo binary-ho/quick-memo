@@ -68,6 +68,7 @@ public class MemoToolWindow {
         this.textArea = new JBTextArea();
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
+        textArea.setBorder(JBUI.Borders.empty(8, 10));
 
         // 중앙 패널에 컴포넌트 추가
         centerPanel.add(new JBScrollPane(textArea), LAYOUT_MEMO);
