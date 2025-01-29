@@ -69,6 +69,21 @@ public class MemoToolWindow {
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setBorder(JBUI.Borders.empty(8, 10));
+        
+        // 폰트 크기 조절 기능 추가
+        textArea.addMouseWheelListener(e -> {
+            if (e.isControlDown()) {  // Windows/Linux: Ctrl, macOS: Cmd
+                Font font = textArea.getFont();
+                int fontSize = font.getSize();
+                
+                if (e.getWheelRotation() < 0 && fontSize < 72) {  // 확대
+                    textArea.setFont(font.deriveFont((float) fontSize + 1));
+                } else if (e.getWheelRotation() > 0 && fontSize > 8) {  // 축소
+                    textArea.setFont(font.deriveFont((float) fontSize - 1));
+                }
+                e.consume();
+            }
+        });
 
         // 중앙 패널에 컴포넌트 추가
         centerPanel.add(new JBScrollPane(textArea), LAYOUT_MEMO);
