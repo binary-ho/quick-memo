@@ -10,7 +10,7 @@ public final class MemoService {
     private final MemoRepository memoRepository;
     private static final String WELCOME_MEMO = """
     default-keymap
-    - macOS: Option + Shift + M
+    - macOS: Option + M
     - windows/linux: Ctrl + Q
     """;
 

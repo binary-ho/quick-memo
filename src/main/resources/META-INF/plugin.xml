@@ -11,7 +11,7 @@
     <br>
     <p><b>Default Keymap:</b></p>
     <ol>
-        <li>macOS: Option + Shift + M</li>
+        <li>macOS: Option + M</li>
         <li>Windows/Linux: Ctrl + Q</li>
     </ol>
     <br>
@@ -44,9 +44,9 @@
             <!-- Windows/Linux: Ctrl + Q -->
             <keyboard-shortcut keymap="$default" first-keystroke="control Q"/>
 
-            <!-- macOS: Option + Shift + M -->
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt shift M"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt shift M"/>
+            <!-- macOS: Option + M -->
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt M"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt M"/>
         </action>
     </actions>
 </idea-plugin>

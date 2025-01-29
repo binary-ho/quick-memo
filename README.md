@@ -7,7 +7,7 @@
 ![Image](https://github.com/user-attachments/assets/947cd29d-d4cf-4529-a221-21c1d6ede558)
 
 ## 1. Default Keymap:
-- macOS: Option + Shift + M
+- macOS: Option + M
 - Windows/Linux: Ctrl + Q
 
 ### Set up your preferred shortcut:
