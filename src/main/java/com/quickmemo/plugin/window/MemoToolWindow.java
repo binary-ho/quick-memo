@@ -4,8 +4,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -33,9 +35,9 @@ public class MemoToolWindow {
     private final DefaultListModel<Memo> listModel;
     private final JBList<Memo> memos;
     private JBPopup memoListPopup;
-
     private final JPanel centerPanel;
     private final JBTextArea textArea;
+    private ActionToolbar leftToolbar;
 
     private static final JBLabel EMPTY_LABEL = getEmptyLabel();
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
@@ -143,7 +145,7 @@ public class MemoToolWindow {
             }
         });
         
-        ActionToolbar leftToolbar = ActionManager.getInstance()
+        leftToolbar = ActionManager.getInstance()
                 .createActionToolbar(TOOLBAR_LEFT, leftGroup, true);
         ActionToolbar rightToolbar = ActionManager.getInstance()
                 .createActionToolbar(TOOLBAR_RIGHT, rightGroup, true);
@@ -246,12 +248,24 @@ public class MemoToolWindow {
             refreshMemoList();
             selectMemoById(id);
             textArea.requestFocus();
+            
+            // 토스트 메시지 표시 - '+' 버튼 위치에서
+            showToast(DialogConstants.MEMO_CREATED_TOAST, leftToolbar.getComponent());
         } catch (MemoLimitExceededException e) {
             Messages.showWarningDialog(
                 DialogConstants.MEMO_LIMIT_REACHED_WARNING_MESSAGE,
                 DialogConstants.MEMO_LIMIT_REACHED_WARNING_TITLE
             );
         }
+    }
+
+    private void showToast(String message, JComponent anchor) {
+        JBPopupFactory.getInstance()
+            .createBalloonBuilder(new JBLabel(message))
+            .setFadeoutTime(1500)
+            .setFillColor(JBUI.CurrentTheme.NotificationInfo.backgroundColor())
+            .createBalloon()
+            .show(RelativePoint.getSouthOf(anchor), Balloon.Position.above);
     }
 
     private void deleteSelectedMemo() {
