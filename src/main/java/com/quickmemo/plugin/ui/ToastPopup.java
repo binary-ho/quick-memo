@@ -17,7 +17,7 @@ public class ToastPopup extends JWindow {
     private static final float OPACITY_START = 0.9f;
     private static final float OPACITY_END = 0.0f;
     private static final int FADE_REFRESH_RATE = 25;
-    private static final int FADE_DURATION = 1000;
+    private static final int FADE_DURATION = 1500;
     private static final int DISPLAY_DURATION = 500;
     
     private final Timer fadeTimer;
