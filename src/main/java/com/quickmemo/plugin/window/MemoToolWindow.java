@@ -2,6 +2,7 @@ package com.quickmemo.plugin.window;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -19,6 +20,7 @@ import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.CurrentMemo;
 import com.quickmemo.plugin.memo.Memo;
 import com.quickmemo.plugin.memo.MemoLimitExceededException;
+import com.quickmemo.plugin.ui.ToastPopup;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -33,9 +35,10 @@ public class MemoToolWindow {
     private final DefaultListModel<Memo> listModel;
     private final JBList<Memo> memos;
     private JBPopup memoListPopup;
-
     private final JPanel centerPanel;
     private final JBTextArea textArea;
+    private final ActionToolbar leftToolbar;
+    private final AnAction addAction;  // Add 버튼 참조 추가
 
     private static final JBLabel EMPTY_LABEL = getEmptyLabel();
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
@@ -110,12 +113,13 @@ public class MemoToolWindow {
         DefaultActionGroup rightGroup = new DefaultActionGroup();
         
         // 새 메모 버튼과 삭제 버튼 (왼쪽)
-        leftGroup.add(new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
+        addAction = new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 createNewMemo();
             }
-        });
+        };
+        leftGroup.add(addAction);
 
         leftGroup.add(new AnAction(ActionConstants.ACTION_DELETE_MEMO, ActionConstants.ACTION_DELETE_MEMO_DESC, AllIcons.General.Remove) {
             @Override
@@ -143,7 +147,7 @@ public class MemoToolWindow {
             }
         });
         
-        ActionToolbar leftToolbar = ActionManager.getInstance()
+        leftToolbar = ActionManager.getInstance()
                 .createActionToolbar(TOOLBAR_LEFT, leftGroup, true);
         ActionToolbar rightToolbar = ActionManager.getInstance()
                 .createActionToolbar(TOOLBAR_RIGHT, rightGroup, true);
@@ -246,12 +250,31 @@ public class MemoToolWindow {
             refreshMemoList();
             selectMemoById(id);
             textArea.requestFocus();
+            
+            ActionButton addButton = null;
+            for (Component comp : leftToolbar.getComponent().getComponents()) {
+                if (comp instanceof ActionButton && ((ActionButton) comp).getAction() == addAction) {
+                    addButton = (ActionButton) comp;
+                    break;
+                }
+            }
+            
+            if (addButton != null) {
+                showToast(addButton);
+            }
         } catch (MemoLimitExceededException e) {
             Messages.showWarningDialog(
                 DialogConstants.MEMO_LIMIT_REACHED_WARNING_MESSAGE,
                 DialogConstants.MEMO_LIMIT_REACHED_WARNING_TITLE
             );
         }
+    }
+
+    private void showToast(JComponent anchor) {
+        SwingUtilities.invokeLater(() -> {
+            ToastPopup popup = new ToastPopup(DialogConstants.MEMO_CREATED_TOAST, anchor);
+            popup.showToast();
+        });
     }
 
     private void deleteSelectedMemo() {

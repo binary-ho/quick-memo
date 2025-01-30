@@ -12,9 +12,12 @@ public final class DialogConstants {
 
     // Memo Limit Reached
     public static final String MEMO_LIMIT_REACHED_WARNING_TITLE = "Memo Limit Reached!";
-    public static final String MEMO_LIMIT_REACHED_WARNING_MESSAGE = "Limit is 20";
+    public static final String MEMO_LIMIT_REACHED_WARNING_MESSAGE = "Max 20 Memos";
 
     // Content Size Exceeded
-    public static final String MEMO_SIZE_LIMIT_REACHED_ERROR_TITLE = "Save Failed!";
-    public static final String MEMO_SIZE_LIMIT_REACHED_ERROR_MESSAGE = "Maximum size is 64KB";
+    public static final String MEMO_SIZE_LIMIT_REACHED_ERROR_TITLE = "Memo Size Limit Reached";
+    public static final String MEMO_SIZE_LIMIT_REACHED_ERROR_MESSAGE = "The memo content has exceeded the maximum size limit.";
+    
+    // Toast Messages
+    public static final String MEMO_CREATED_TOAST = "New Memo Created!";
 }
