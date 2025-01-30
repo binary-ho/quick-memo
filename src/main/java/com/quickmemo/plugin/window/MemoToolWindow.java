@@ -2,12 +2,11 @@ package com.quickmemo.plugin.window;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
@@ -21,6 +20,7 @@ import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.CurrentMemo;
 import com.quickmemo.plugin.memo.Memo;
 import com.quickmemo.plugin.memo.MemoLimitExceededException;
+import com.quickmemo.plugin.ui.ToastPopup;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -37,7 +37,8 @@ public class MemoToolWindow {
     private JBPopup memoListPopup;
     private final JPanel centerPanel;
     private final JBTextArea textArea;
-    private ActionToolbar leftToolbar;
+    private final ActionToolbar leftToolbar;
+    private final AnAction addAction;  // Add 버튼 참조 추가
 
     private static final JBLabel EMPTY_LABEL = getEmptyLabel();
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
@@ -112,12 +113,13 @@ public class MemoToolWindow {
         DefaultActionGroup rightGroup = new DefaultActionGroup();
         
         // 새 메모 버튼과 삭제 버튼 (왼쪽)
-        leftGroup.add(new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
+        addAction = new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 createNewMemo();
             }
-        });
+        };
+        leftGroup.add(addAction);
 
         leftGroup.add(new AnAction(ActionConstants.ACTION_DELETE_MEMO, ActionConstants.ACTION_DELETE_MEMO_DESC, AllIcons.General.Remove) {
             @Override
@@ -249,8 +251,17 @@ public class MemoToolWindow {
             selectMemoById(id);
             textArea.requestFocus();
             
-            // 토스트 메시지 표시 - '+' 버튼 위치에서
-            showToast(DialogConstants.MEMO_CREATED_TOAST, leftToolbar.getComponent());
+            ActionButton addButton = null;
+            for (Component comp : leftToolbar.getComponent().getComponents()) {
+                if (comp instanceof ActionButton && ((ActionButton) comp).getAction() == addAction) {
+                    addButton = (ActionButton) comp;
+                    break;
+                }
+            }
+            
+            if (addButton != null) {
+                showToast(addButton);
+            }
         } catch (MemoLimitExceededException e) {
             Messages.showWarningDialog(
                 DialogConstants.MEMO_LIMIT_REACHED_WARNING_MESSAGE,
@@ -259,13 +270,11 @@ public class MemoToolWindow {
         }
     }
 
-    private void showToast(String message, JComponent anchor) {
-        JBPopupFactory.getInstance()
-            .createBalloonBuilder(new JBLabel(message))
-            .setFadeoutTime(1500)
-            .setFillColor(JBUI.CurrentTheme.NotificationInfo.backgroundColor())
-            .createBalloon()
-            .show(RelativePoint.getSouthOf(anchor), Balloon.Position.above);
+    private void showToast(JComponent anchor) {
+        SwingUtilities.invokeLater(() -> {
+            ToastPopup popup = new ToastPopup(DialogConstants.MEMO_CREATED_TOAST, anchor);
+            popup.showToast();
+        });
     }
 
     private void deleteSelectedMemo() {
