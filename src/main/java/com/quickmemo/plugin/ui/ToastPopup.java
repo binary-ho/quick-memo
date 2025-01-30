@@ -1,8 +1,7 @@
 package com.quickmemo.plugin.ui;
 
-import com.intellij.ui.JBColor;
-import com.intellij.util.ui.JBUI;
 import com.intellij.notification.impl.NotificationsManagerImpl;
+import com.intellij.ui.JBColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +10,8 @@ import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 
 public class ToastPopup extends JWindow {
-    private static final int POPUP_WIDTH = 80;
-    private static final int POPUP_HEIGHT = 28;  // 높이를 더 줄임
+    private static final int POPUP_WIDTH = 150;  
+    private static final int POPUP_HEIGHT = 28;  
     private static final int ROUND_RECT_ARC = 10;
     private static final int ARROW_SIZE = 8;
     private static final float OPACITY_START = 0.9f;
@@ -25,7 +24,8 @@ public class ToastPopup extends JWindow {
     private float opacity = OPACITY_START;
 
     public ToastPopup(String message, Component parent) {
-        setLayout(null);  // 절대 위치 사용
+        // 절대 위치 사용
+        setLayout(null);
         setSize(POPUP_WIDTH, POPUP_HEIGHT + ARROW_SIZE);
         setAlwaysOnTop(true);
         
@@ -37,8 +37,8 @@ public class ToastPopup extends JWindow {
         // 레이블 크기와 위치 직접 설정
         Dimension labelSize = label.getPreferredSize();
         label.setBounds(
-            (POPUP_WIDTH - labelSize.width) / 2,  // 가로 중앙
-            (POPUP_HEIGHT - labelSize.height) / 2 - 1,  // 세로 중앙에서 살짝 위로
+            (POPUP_WIDTH - labelSize.width) / 2,
+            (POPUP_HEIGHT - labelSize.height) / 2 - 1,
             labelSize.width,
             labelSize.height
         );
