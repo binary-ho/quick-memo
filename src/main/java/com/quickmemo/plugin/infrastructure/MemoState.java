@@ -1,60 +1,82 @@
 package com.quickmemo.plugin.infrastructure;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.Service;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.*;
 import com.quickmemo.plugin.memo.Memo;
-import com.quickmemo.plugin.memo.Memos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.*;
 
 @Service(Service.Level.PROJECT)
 @State(
         name = "QuickMemoContent",
-        storages = {@Storage("quickMemoContent.xml")}
+        storages = {@Storage("quickMemo.xml")}
 )
-public final class MemoState implements PersistentStateComponent<Memos> {
-    private final Memos memos;
+public final class MemoState implements PersistentStateComponent<MemoState.State> {
+    private State state = new State();
 
-    public MemoState() {
-        memos = new Memos();
+    public static class State {
+        public List<MemoLocalState> memos = new ArrayList<>();
+    }
+
+    public static class MemoLocalState {
+        public String id;
+        public String content;
+        public String createdAt;
+
+        public MemoLocalState() {
+        }
+
+        public MemoLocalState(String id, String content, String createdAt) {
+            this.id = id;
+            this.content = content;
+            this.createdAt = createdAt;
+        }
     }
 
     public List<Memo> getAll() {
-        return memos.getAll();
+        return state.memos.stream()
+                .map(data -> new Memo(data.id, data.content, data.createdAt))
+                .toList();
     }
 
     public void add(Memo memo) {
-        memos.add(memo);
+        for (int i = 0; i < state.memos.size(); i++) {
+            if (state.memos.get(i).id.equals(memo.id())) {
+                return;
+            }
+        }
+        state.memos.add(new MemoLocalState(memo.id(), memo.content(), memo.createdAt()));
     }
 
     public void update(Memo memo) {
-        memos.update(memo);
+        for (MemoLocalState data : state.memos) {
+            if (data.id.equals(memo.id())) {
+                data.content = memo.content();
+                break;
+            }
+        }
     }
 
     public void remove(String id) {
-        memos.remove(id);
-    }
-
-    public boolean isEmpty() {
-        return memos.isEmpty();
+        state.memos.removeIf(data -> data.id.equals(id));
     }
 
     public boolean isExist(String id) {
-        return memos.isExist(id);
+        return state.memos.stream().anyMatch(data -> data.id.equals(id));
+    }
+
+    public boolean isEmpty() {
+        return state.memos.isEmpty();
     }
 
     @Override
-    public @Nullable Memos getState() {
-        // TODO: 방어적 복사?
-        return this.memos;
+    public @Nullable State getState() {
+        return state;
     }
 
     @Override
-    public void loadState(@NotNull Memos loaded) {
-        this.memos.addAll(loaded.getAll());
+    public void loadState(@NotNull State state) {
+        this.state = state;
     }
 }
