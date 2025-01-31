@@ -22,8 +22,11 @@ import com.quickmemo.plugin.window.action.MemoActionManager;
 import com.quickmemo.plugin.window.component.MemoEditor;
 import com.quickmemo.plugin.window.component.MemoList;
 import com.quickmemo.plugin.window.component.MemoToolbar;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.List;
 
@@ -33,6 +36,8 @@ public class MemoToolWindow {
     private final MemoEditor editor;
     private final MemoList memoList;
     private final MemoActionManager actionManager;
+    private final JPanel centerPanel;
+
     private JBPopup memoListPopup;
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
 
@@ -41,7 +46,6 @@ public class MemoToolWindow {
     private static final String EMPTY_STATE_NO_MEMO = "Click '+' to write it out";
     private static final String EMPTY_STATE_NO_MEMOS_IN_LIST = "Empty";
 
-    private final JPanel centerPanel;
     private static final JBLabel EMPTY_LABEL = getEmptyLabel();
 
     public MemoToolWindow(Project project) {
@@ -88,7 +92,22 @@ public class MemoToolWindow {
             }
         });
 
-        editor.addDocumentListener(new DocumentChangeListener());
+        editor.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent event) {
+                saveContent();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent event) {
+                saveContent();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent event) {
+                saveContent();
+            }
+        });
     }
 
     private void initializeState() {
@@ -113,29 +132,40 @@ public class MemoToolWindow {
             return;
         }
 
+        JPanel listPanel = getListPanel();
+        memoListPopup = buildMemoListPopup(listPanel);
+        Component rightToolbar = ((JPanel)content.getComponent(0)).getComponent(1);
+        memoListPopup.showUnderneathOf(rightToolbar);
+    }
+
+    private @NotNull JPanel getListPanel() {
         JPanel listPanel = new JPanel(new BorderLayout());
-        List<Memo> currentMemos = memoService.getAllMemos();
-        
-        if (currentMemos.isEmpty()) {
+        if (isMemoListEmpty()) {
             JBLabel emptyListLabel = new JBLabel(EMPTY_STATE_NO_MEMOS_IN_LIST, SwingConstants.CENTER);
             emptyListLabel.setFont(emptyListLabel.getFont().deriveFont((float) JBUI.scale(14)));
             emptyListLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
             listPanel.add(emptyListLabel, BorderLayout.CENTER);
-        } else {
-            refreshMemoList();
-            listPanel.add(new JBScrollPane(memoList.getList()), BorderLayout.CENTER);
+            return listPanel;
         }
 
-        memoListPopup = JBPopupFactory.getInstance()
+        refreshMemoList();
+        listPanel.add(new JBScrollPane(memoList.getList()), BorderLayout.CENTER);
+        return listPanel;
+    }
+
+    private boolean isMemoListEmpty() {
+        List<Memo> memos = memoService.getAllMemos();
+        return memos.isEmpty();
+    }
+
+    private @NotNull JBPopup buildMemoListPopup(JPanel listPanel) {
+        return JBPopupFactory.getInstance()
                 .createComponentPopupBuilder(listPanel, memoList.getList())
                 .setTitle(DialogConstants.MEMO_LIST_TITLE)
                 .setMovable(true)
                 .setResizable(true)
                 .setMinSize(new Dimension(200, 300))
                 .createPopup();
-
-        Component rightToolbar = ((JPanel)content.getComponent(0)).getComponent(1);
-        memoListPopup.showUnderneathOf(rightToolbar);
     }
 
     private MemoService getMemoService(Project project) {
@@ -211,7 +241,7 @@ public class MemoToolWindow {
         ((CardLayout) centerPanel.getLayout()).show(centerPanel, LAYOUT_EMPTY);
     }
 
-    public void refreshMemoList() {
+    private void refreshMemoList() {
         List<Memo> allMemos = this.memoService.getAllMemos();
         memoList.setMemos(allMemos);
     }
@@ -253,22 +283,5 @@ public class MemoToolWindow {
 
     public CurrentMemo getCurrentMemo() {
         return currentMemo;
-    }
-
-    private class DocumentChangeListener implements javax.swing.event.DocumentListener {
-        @Override
-        public void insertUpdate(javax.swing.event.DocumentEvent e) {
-            saveContent();
-        }
-
-        @Override
-        public void removeUpdate(javax.swing.event.DocumentEvent e) {
-            saveContent();
-        }
-
-        @Override
-        public void changedUpdate(javax.swing.event.DocumentEvent e) {
-            saveContent();
-        }
     }
 }
