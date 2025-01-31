@@ -9,13 +9,13 @@ import java.awt.*;
 
 import static com.quickmemo.plugin.memo.MemoConstants.TITLE_LENGTH_LIMIT;
 
-// TODO: Memo List Title Renderer로 이름 변경
-public class MemoListCellRenderer extends DefaultListCellRenderer {
+public class MemoListTitleRenderer extends DefaultListCellRenderer {
     private static final String EMPTY = "";
 
     @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                  boolean isSelected, boolean cellHasFocus) {
+    public Component getListCellRendererComponent(
+            JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value instanceof Memo memo) {
             String title = getTitle(memo);
@@ -25,11 +25,7 @@ public class MemoListCellRenderer extends DefaultListCellRenderer {
     }
 
     private static @NotNull String getTitle(Memo memo) {
-        String firstLine = memo.getContent()
-                .lines()
-                .findFirst()
-                .orElse(EMPTY)
-                .trim();
+        String firstLine = getFirstLine(memo.getContent());
 
         if (firstLine.length() > TITLE_LENGTH_LIMIT) {
             return firstLine.substring(0, TITLE_LENGTH_LIMIT);
@@ -39,5 +35,12 @@ public class MemoListCellRenderer extends DefaultListCellRenderer {
             return MemoConstants.DEFAULT_TITLE;
         }
         return firstLine;
+    }
+
+    private static @NotNull String getFirstLine(String content) {
+        return content.lines()
+                .findFirst()
+                .orElse(EMPTY)
+                .trim();
     }
 }

@@ -65,7 +65,7 @@ public class MemoToolWindow {
         // 메모 목록 준비
         this.listModel = new DefaultListModel<>();
         this.memos = new JBList<>(listModel);
-        memos.setCellRenderer(new MemoListCellRenderer());
+        memos.setCellRenderer(new MemoListTitleRenderer());
 
         // 중앙 패널 (CardLayout 사용)
         this.centerPanel = new JPanel(new CardLayout());
