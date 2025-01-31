@@ -1,20 +1,16 @@
 package com.quickmemo.plugin.window;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.JBUI;
 import com.quickmemo.plugin.application.MemoRepository;
 import com.quickmemo.plugin.application.MemoService;
-import com.quickmemo.plugin.constant.ActionConstants;
 import com.quickmemo.plugin.constant.DialogConstants;
 import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
@@ -22,205 +18,104 @@ import com.quickmemo.plugin.memo.CurrentMemo;
 import com.quickmemo.plugin.memo.Memo;
 import com.quickmemo.plugin.memo.MemoLimitExceededException;
 import com.quickmemo.plugin.ui.ToastPopup;
-import org.jetbrains.annotations.NotNull;
+import com.quickmemo.plugin.window.action.MemoActionManager;
+import com.quickmemo.plugin.window.component.MemoEditor;
+import com.quickmemo.plugin.window.component.MemoList;
+import com.quickmemo.plugin.window.component.MemoToolbar;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.List;
 
 public class MemoToolWindow {
     private final JPanel content;
     private final MemoService memoService;
-
-    private final DefaultListModel<Memo> listModel;
-    private final JBList<Memo> memos;
+    private final MemoEditor editor;
+    private final MemoList memoList;
+    private final MemoActionManager actionManager;
     private JBPopup memoListPopup;
-    private final JPanel centerPanel;
-    private final JBTextArea textArea;
-    private final ActionToolbar leftToolbar;
-    private final AnAction addAction;  // Add 버튼 참조 추가
-
-    private static final JBLabel EMPTY_LABEL = getEmptyLabel();
     private CurrentMemo currentMemo = CurrentMemo.UNSELECTED;
 
-    // Layout
     private static final String LAYOUT_MEMO = "MEMO";
     private static final String LAYOUT_EMPTY = "EMPTY";
-
-    // Toolbar Names
-    private static final String TOOLBAR_LEFT = "MemoToolbarLeft";
-    private static final String TOOLBAR_RIGHT = "MemoToolbarRight";
-
-    // Empty State
     private static final String EMPTY_STATE_NO_MEMO = "Click '+' to write it out";
     private static final String EMPTY_STATE_NO_MEMOS_IN_LIST = "Empty";
+
+    private final JPanel centerPanel;
+    private static final JBLabel EMPTY_LABEL = getEmptyLabel();
 
     public MemoToolWindow(Project project) {
         this.memoService = getMemoService(project);
         this.content = new JPanel(new BorderLayout());
-        
-        // 메모 목록 준비
-        this.listModel = new DefaultListModel<>();
-        this.memos = new JBList<>(listModel);
-        memos.setCellRenderer(new MemoListTitleRenderer());
-
-        // 중앙 패널 (CardLayout 사용)
+        this.editor = new MemoEditor();
+        this.memoList = new MemoList();
+        this.actionManager = new MemoActionManager(this);
         this.centerPanel = new JPanel(new CardLayout());
         
-        // 메모 내용 영역
-        this.textArea = new JBTextArea();
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setBorder(JBUI.Borders.empty(8, 10));
-        
-        // 폰트 크기 조절 기능 추가
-        textArea.addMouseWheelListener(e -> {
-            if (e.isControlDown()) {
-                Font font = textArea.getFont();
-                int fontSize = font.getSize();
-                
-                if (e.getWheelRotation() < 0 && fontSize < 72) {
-                    textArea.setFont(font.deriveFont((float) fontSize + 1));
-                } else if (e.getWheelRotation() > 0 && fontSize > 8) {
-                    textArea.setFont(font.deriveFont((float) fontSize - 1));
-                }
-                e.consume();
-            }
-        });
+        initializeLayout();
+        initializeListeners();
+        initializeState();
+    }
 
-        // 중앙 패널에 컴포넌트 추가
-        centerPanel.add(new JBScrollPane(textArea), LAYOUT_MEMO);
+    private void initializeLayout() {
+        // 중앙 패널 설정
+        centerPanel.add(editor, LAYOUT_MEMO);
         centerPanel.add(EMPTY_LABEL, LAYOUT_EMPTY);
+
+        // 툴바 설정
+        MemoToolbar toolbar = MemoToolbar.initializeWithActionManager(actionManager, content);
         
-        // 메모 선택 시 내용 표시
-        memos.addListSelectionListener(this::onMemoSelected);
-        
-        // 메모 내용 변경 시 자동 저장
-        textArea.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                saveContent();
-            }
+        // 전체 레이아웃 구성
+        content.add(toolbar, BorderLayout.NORTH);
+        content.add(centerPanel, BorderLayout.CENTER);
+    }
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                saveContent();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                saveContent();
-            }
-        });
-
-        // 툴바 추가
-        DefaultActionGroup leftGroup = new DefaultActionGroup();
-        DefaultActionGroup rightGroup = new DefaultActionGroup();
-        
-        // 새 메모 버튼과 삭제 버튼 (왼쪽)
-        addAction = new AnAction(ActionConstants.ACTION_NEW_MEMO, ActionConstants.ACTION_NEW_MEMO_DESC, AllIcons.General.Add) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                createNewMemo();
-            }
-        };
-        leftGroup.add(addAction);
-
-        leftGroup.add(new AnAction(ActionConstants.ACTION_DELETE_MEMO, ActionConstants.ACTION_DELETE_MEMO_DESC, AllIcons.General.Remove) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                if (currentMemo.isUnselected()) {
+    private void initializeListeners() {
+        memoList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                Memo selectedMemo = memoList.getSelectedMemo();
+                if (selectedMemo == null) {
                     return;
                 }
 
-                int result = Messages.showYesNoDialog(
-                        DialogConstants.DELETE_MEMO_CONFIRM_CONTENT,
-                        DialogConstants.DELETE_MEMO_CONFIRM_TITLE,
-                        DialogConstants.DELETE_MEMO_CONFIRM_YES,
-                        DialogConstants.DELETE_MEMO_CONFIRM_NO,
-                        Messages.getQuestionIcon());
+                currentMemo = CurrentMemo.of(selectedMemo);
+                editor.setText(currentMemo.getMemo().getContent());
+                showMemoState();
 
-                if (result == Messages.YES) {
-                    deleteSelectedMemo();
+                if (memoListPopup != null && memoListPopup.isVisible()) {
+                    memoListPopup.cancel();
                 }
             }
         });
 
-        // 메모 목록 보기 버튼 (오른쪽)
-        rightGroup.add(new AnAction(ActionConstants.ACTION_SHOW_LIST, ActionConstants.ACTION_SHOW_LIST_DESC, AllIcons.Actions.Minimap) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                showMemoListPopup();
-            }
-        });
-        
-        leftToolbar = ActionManager.getInstance()
-                .createActionToolbar(TOOLBAR_LEFT, leftGroup, true);
-        ActionToolbar rightToolbar = ActionManager.getInstance()
-                .createActionToolbar(TOOLBAR_RIGHT, rightGroup, true);
-        
-        leftToolbar.setTargetComponent(content);
-        rightToolbar.setTargetComponent(content);
-        
-        // 툴바 설정
-        leftToolbar.setMiniMode(true);
-        rightToolbar.setMiniMode(true);
-        
-        // 툴바 컴포넌트의 여백 제거
-        JComponent rightToolbarComponent = rightToolbar.getComponent();
-        rightToolbarComponent.setBorder(JBUI.Borders.empty());
-        rightToolbarComponent.setOpaque(false);
-        
-        // 툴바를 담을 패널 (여백 없이)
-        JPanel toolbarPanel = new JPanel() {
-            @Override
-            public void addNotify() {
-                super.addNotify();
-                if (rightToolbarComponent.getParent() instanceof JComponent parent) {
-                    parent.setBorder(JBUI.Borders.empty());
-                    parent.setOpaque(false);
-                }
-            }
-        };
-        toolbarPanel.setLayout(new BorderLayout(0, 0));
-        toolbarPanel.setBorder(JBUI.Borders.empty());
-        toolbarPanel.setOpaque(false);
-        toolbarPanel.add(leftToolbar.getComponent(), BorderLayout.WEST);
-        toolbarPanel.add(rightToolbar.getComponent(), BorderLayout.EAST);
-        
-        // 레이아웃 구성
-        content.add(toolbarPanel, BorderLayout.NORTH);
-        content.add(centerPanel, BorderLayout.CENTER);
-        
-        // 첫 번째 메모 선택
+        editor.addDocumentListener(new DocumentChangeListener());
+    }
+
+    private void initializeState() {
         refreshMemoList();
-        if (!listModel.isEmpty()) {
-            selectMemoById(listModel.getElementAt(0).getId());
+        if (!memoList.isEmpty()) {
+            selectMemoById(memoList.getElementAt(0).getId());
         } else {
             showEmptyState();
         }
     }
 
-    private static @NotNull JBLabel getEmptyLabel() {
+    private static JBLabel getEmptyLabel() {
         JBLabel emptyLabel = new JBLabel(EMPTY_STATE_NO_MEMO, SwingConstants.CENTER);
         emptyLabel.setFont(emptyLabel.getFont().deriveFont((float) JBUI.scale(14)));
         emptyLabel.setForeground(JBUI.CurrentTheme.Label.disabledForeground());
         return emptyLabel;
     }
 
-    private void showMemoListPopup() {
+    public void showMemoListPopup() {
         if (memoListPopup != null && memoListPopup.isVisible()) {
             memoListPopup.cancel();
             return;
         }
 
-        // 메모 목록 패널 생성
         JPanel listPanel = new JPanel(new BorderLayout());
-        
         List<Memo> currentMemos = memoService.getAllMemos();
+        
         if (currentMemos.isEmpty()) {
             JBLabel emptyListLabel = new JBLabel(EMPTY_STATE_NO_MEMOS_IN_LIST, SwingConstants.CENTER);
             emptyListLabel.setFont(emptyListLabel.getFont().deriveFont((float) JBUI.scale(14)));
@@ -228,47 +123,35 @@ public class MemoToolWindow {
             listPanel.add(emptyListLabel, BorderLayout.CENTER);
         } else {
             refreshMemoList();
-            listPanel.add(new JBScrollPane(memos), BorderLayout.CENTER);
+            listPanel.add(new JBScrollPane(memoList.getList()), BorderLayout.CENTER);
         }
-        
-        // 팝업 생성
+
         memoListPopup = JBPopupFactory.getInstance()
-                .createComponentPopupBuilder(listPanel, memos)
+                .createComponentPopupBuilder(listPanel, memoList.getList())
                 .setTitle(DialogConstants.MEMO_LIST_TITLE)
                 .setMovable(true)
                 .setResizable(true)
                 .setMinSize(new Dimension(200, 300))
                 .createPopup();
 
-        // 리스트 버튼 기준으로 팝업 표시
-        Component toolbarComponent = content.getComponent(0);
-        Component rightToolbar = ((JPanel)toolbarComponent).getComponent(1);
+        Component rightToolbar = ((JPanel)content.getComponent(0)).getComponent(1);
         memoListPopup.showUnderneathOf(rightToolbar);
     }
 
-    private @NotNull MemoService getMemoService(Project project) {
+    private MemoService getMemoService(Project project) {
         MemoState state = project.getService(MemoState.class);
         MemoRepository repository = new MemoStateRepository(state);
         return new MemoService(repository);
     }
 
-    private void createNewMemo() {
+    public void createNewMemo() {
         try {
             String id = memoService.createEmptyMemo();
-
             refreshMemoList();
-
             selectMemoById(id);
-            textArea.requestFocus();
+            editor.requestFocusOnEditor();
             
-            ActionButton addButton = null;
-            for (Component comp : leftToolbar.getComponent().getComponents()) {
-                if (comp instanceof ActionButton && ((ActionButton) comp).getAction() == addAction) {
-                    addButton = (ActionButton) comp;
-                    break;
-                }
-            }
-            
+            ActionButton addButton = findAddButton();
             if (addButton != null) {
                 showToast(addButton);
             }
@@ -280,6 +163,16 @@ public class MemoToolWindow {
         }
     }
 
+    private ActionButton findAddButton() {
+        ActionToolbar leftToolbar = ((MemoToolbar)content.getComponent(0)).getLeftToolbar();
+        for (Component comp : leftToolbar.getComponent().getComponents()) {
+            if (comp instanceof ActionButton && ((ActionButton) comp).getAction() == actionManager.getAddAction()) {
+                return (ActionButton) comp;
+            }
+        }
+        return null;
+    }
+
     private void showToast(JComponent anchor) {
         SwingUtilities.invokeLater(() -> {
             ToastPopup popup = new ToastPopup(DialogConstants.MEMO_CREATED_TOAST, anchor);
@@ -287,7 +180,7 @@ public class MemoToolWindow {
         });
     }
 
-    private void deleteSelectedMemo() {
+    public void deleteSelectedMemo() {
         if (currentMemo.isUnselected()) {
             return;
         }
@@ -299,13 +192,12 @@ public class MemoToolWindow {
             currentMemo = CurrentMemo.UNSELECTED;
             refreshMemoList();
 
-            // 실제 메모 상태 다시 확인
             List<Memo> remainingMemos = memoService.getAllMemos();
             if (!remainingMemos.isEmpty()) {
-                memos.setSelectedIndex(0);
+                memoList.setSelectedIndex(0);
                 showMemoState();
             } else {
-                textArea.setText("");
+                editor.setText("");
                 showEmptyState();
             }
         });
@@ -321,37 +213,13 @@ public class MemoToolWindow {
 
     public void refreshMemoList() {
         List<Memo> allMemos = this.memoService.getAllMemos();
-
-        listModel.clear();
-
-        allMemos.stream()
-                .sorted((m1, m2) -> m2.getCreatedAt().compareTo(m1.getCreatedAt())) // 최신순 정렬
-                .forEach(this.listModel::addElement);
-        memos.revalidate();
-        memos.repaint();
-    }
-
-    private void onMemoSelected(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting()) {
-            Memo selectedMemo = memos.getSelectedValue();
-            if (selectedMemo == null) {
-                return;
-            }
-
-            currentMemo = CurrentMemo.of(selectedMemo);
-            textArea.setText(currentMemo.getMemo().getContent());
-            showMemoState();
-
-            if (memoListPopup != null && memoListPopup.isVisible()) {
-                memoListPopup.cancel();
-            }
-        }
+        memoList.setMemos(allMemos);
     }
 
     private void selectMemoById(String id) {
-        for (int i = 0; i < listModel.size(); i++) {
-            if (listModel.getElementAt(i).getId().equals(id)) {
-                memos.setSelectedIndex(i);
+        for (int i = 0; i < memoList.getListSize(); i++) {
+            if (memoList.getElementAt(i).getId().equals(id)) {
+                memoList.setSelectedIndex(i);
                 break;
             }
         }
@@ -365,12 +233,12 @@ public class MemoToolWindow {
 
             Memo updatedMemo = new Memo(
                 currentMemo.getMemo().getId(),
-                textArea.getText(),
+                editor.getText(),
                 currentMemo.getMemo().getCreatedAt()
             );
             memoService.updateMemo(updatedMemo);
             refreshMemoList();
-            memos.repaint();
+            memoList.getList().repaint();
         } catch (IllegalArgumentException e) {
             Messages.showErrorDialog(
                 DialogConstants.MEMO_SIZE_LIMIT_REACHED_ERROR_MESSAGE,
@@ -381,5 +249,26 @@ public class MemoToolWindow {
 
     public JPanel getContent() {
         return content;
+    }
+
+    public CurrentMemo getCurrentMemo() {
+        return currentMemo;
+    }
+
+    private class DocumentChangeListener implements javax.swing.event.DocumentListener {
+        @Override
+        public void insertUpdate(javax.swing.event.DocumentEvent e) {
+            saveContent();
+        }
+
+        @Override
+        public void removeUpdate(javax.swing.event.DocumentEvent e) {
+            saveContent();
+        }
+
+        @Override
+        public void changedUpdate(javax.swing.event.DocumentEvent e) {
+            saveContent();
+        }
     }
 }
