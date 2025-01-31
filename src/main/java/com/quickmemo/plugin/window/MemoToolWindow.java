@@ -12,6 +12,7 @@ import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.JBUI;
+import com.quickmemo.plugin.application.MemoRepository;
 import com.quickmemo.plugin.application.MemoService;
 import com.quickmemo.plugin.constant.ActionConstants;
 import com.quickmemo.plugin.constant.DialogConstants;
@@ -24,6 +25,8 @@ import com.quickmemo.plugin.ui.ToastPopup;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.List;
@@ -75,13 +78,13 @@ public class MemoToolWindow {
         
         // 폰트 크기 조절 기능 추가
         textArea.addMouseWheelListener(e -> {
-            if (e.isControlDown()) {  // Windows/Linux: Ctrl, macOS: Cmd
+            if (e.isControlDown()) {
                 Font font = textArea.getFont();
                 int fontSize = font.getSize();
                 
-                if (e.getWheelRotation() < 0 && fontSize < 72) {  // 확대
+                if (e.getWheelRotation() < 0 && fontSize < 72) {
                     textArea.setFont(font.deriveFont((float) fontSize + 1));
-                } else if (e.getWheelRotation() > 0 && fontSize > 8) {  // 축소
+                } else if (e.getWheelRotation() > 0 && fontSize > 8) {
                     textArea.setFont(font.deriveFont((float) fontSize - 1));
                 }
                 e.consume();
@@ -96,14 +99,19 @@ public class MemoToolWindow {
         memos.addListSelectionListener(this::onMemoSelected);
         
         // 메모 내용 변경 시 자동 저장
-        textArea.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
                 saveContent();
             }
-            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
                 saveContent();
             }
-            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
                 saveContent();
             }
         });
@@ -124,17 +132,19 @@ public class MemoToolWindow {
         leftGroup.add(new AnAction(ActionConstants.ACTION_DELETE_MEMO, ActionConstants.ACTION_DELETE_MEMO_DESC, AllIcons.General.Remove) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                if (currentMemo.isSelected()) {
-                    int result = Messages.showYesNoDialog(
-                            DialogConstants.DELETE_MEMO_CONFIRM_CONTENT,
-                            DialogConstants.DELETE_MEMO_CONFIRM_TITLE,
-                            DialogConstants.DELETE_MEMO_CONFIRM_YES,
-                            DialogConstants.DELETE_MEMO_CONFIRM_NO,
-                            Messages.getQuestionIcon());
-                    
-                    if (result == Messages.YES) {
-                        deleteSelectedMemo();
-                    }
+                if (currentMemo.isUnselected()) {
+                    return;
+                }
+
+                int result = Messages.showYesNoDialog(
+                        DialogConstants.DELETE_MEMO_CONFIRM_CONTENT,
+                        DialogConstants.DELETE_MEMO_CONFIRM_TITLE,
+                        DialogConstants.DELETE_MEMO_CONFIRM_YES,
+                        DialogConstants.DELETE_MEMO_CONFIRM_NO,
+                        Messages.getQuestionIcon());
+
+                if (result == Messages.YES) {
+                    deleteSelectedMemo();
                 }
             }
         });
@@ -188,7 +198,7 @@ public class MemoToolWindow {
         // 첫 번째 메모 선택
         refreshMemoList();
         if (!listModel.isEmpty()) {
-            selectMemoById(listModel.getElementAt(0).id());
+            selectMemoById(listModel.getElementAt(0).getId());
         } else {
             showEmptyState();
         }
@@ -237,17 +247,17 @@ public class MemoToolWindow {
     }
 
     private @NotNull MemoService getMemoService(Project project) {
-        final MemoService memoService;
         MemoState state = project.getService(MemoState.class);
-        MemoStateRepository repository = new MemoStateRepository(state);
-        memoService = new MemoService(repository);
-        return memoService;
+        MemoRepository repository = new MemoStateRepository(state);
+        return new MemoService(repository);
     }
 
     private void createNewMemo() {
         try {
             String id = memoService.createEmptyMemo();
+
             refreshMemoList();
+
             selectMemoById(id);
             textArea.requestFocus();
             
@@ -278,25 +288,27 @@ public class MemoToolWindow {
     }
 
     private void deleteSelectedMemo() {
-        if (currentMemo.isSelected()) {
-            Memo memoToDelete = currentMemo.getMemo();
-            memoService.deleteMemo(memoToDelete);
-            
-            SwingUtilities.invokeLater(() -> {
-                currentMemo = CurrentMemo.UNSELECTED;
-                refreshMemoList();
-                
-                // 실제 메모 상태 다시 확인
-                List<Memo> remainingMemos = memoService.getAllMemos();
-                if (!remainingMemos.isEmpty()) {
-                    memos.setSelectedIndex(0);
-                    showMemoState();
-                } else {
-                    textArea.setText("");
-                    showEmptyState();
-                }
-            });
+        if (currentMemo.isUnselected()) {
+            return;
         }
+
+        Memo memoToDelete = currentMemo.getMemo();
+        memoService.deleteMemo(memoToDelete);
+
+        SwingUtilities.invokeLater(() -> {
+            currentMemo = CurrentMemo.UNSELECTED;
+            refreshMemoList();
+
+            // 실제 메모 상태 다시 확인
+            List<Memo> remainingMemos = memoService.getAllMemos();
+            if (!remainingMemos.isEmpty()) {
+                memos.setSelectedIndex(0);
+                showMemoState();
+            } else {
+                textArea.setText("");
+                showEmptyState();
+            }
+        });
     }
 
     private void showMemoState() {
@@ -309,33 +321,36 @@ public class MemoToolWindow {
 
     public void refreshMemoList() {
         List<Memo> allMemos = this.memoService.getAllMemos();
+
         listModel.clear();
-        if (!allMemos.isEmpty()) {
-            allMemos.stream()
-                    .sorted((m1, m2) -> m2.createdAt().compareTo(m1.createdAt())) // 최신순 정렬
-                    .forEach(this.listModel::addElement);
-            memos.revalidate();
-            memos.repaint();
-        }
+
+        allMemos.stream()
+                .sorted((m1, m2) -> m2.getCreatedAt().compareTo(m1.getCreatedAt())) // 최신순 정렬
+                .forEach(this.listModel::addElement);
+        memos.revalidate();
+        memos.repaint();
     }
 
     private void onMemoSelected(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
             Memo selectedMemo = memos.getSelectedValue();
-            if (selectedMemo != null) {
-                currentMemo = CurrentMemo.of(selectedMemo);
-                textArea.setText(currentMemo.getMemo().content());
-                showMemoState();
-                if (memoListPopup != null && memoListPopup.isVisible()) {
-                    memoListPopup.cancel();
-                }
+            if (selectedMemo == null) {
+                return;
+            }
+
+            currentMemo = CurrentMemo.of(selectedMemo);
+            textArea.setText(currentMemo.getMemo().getContent());
+            showMemoState();
+
+            if (memoListPopup != null && memoListPopup.isVisible()) {
+                memoListPopup.cancel();
             }
         }
     }
 
     private void selectMemoById(String id) {
         for (int i = 0; i < listModel.size(); i++) {
-            if (listModel.getElementAt(i).id().equals(id)) {
+            if (listModel.getElementAt(i).getId().equals(id)) {
                 memos.setSelectedIndex(i);
                 break;
             }
@@ -344,16 +359,18 @@ public class MemoToolWindow {
 
     private void saveContent() {
         try {
-            if (currentMemo.isSelected()) {
-                Memo updatedMemo = new Memo(
-                    currentMemo.getMemo().id(),
-                    textArea.getText(),
-                    currentMemo.getMemo().createdAt()
-                );
-                memoService.updateMemo(updatedMemo);
-                refreshMemoList();
-                memos.repaint();
+            if (currentMemo.isUnselected()) {
+                return;
             }
+
+            Memo updatedMemo = new Memo(
+                currentMemo.getMemo().getId(),
+                textArea.getText(),
+                currentMemo.getMemo().getCreatedAt()
+            );
+            memoService.updateMemo(updatedMemo);
+            refreshMemoList();
+            memos.repaint();
         } catch (IllegalArgumentException e) {
             Messages.showErrorDialog(
                 DialogConstants.MEMO_SIZE_LIMIT_REACHED_ERROR_MESSAGE,

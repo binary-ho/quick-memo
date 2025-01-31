@@ -9,6 +9,7 @@ import java.awt.*;
 
 import static com.quickmemo.plugin.memo.MemoConstants.TITLE_LENGTH_LIMIT;
 
+// TODO: Memo List Title Renderer로 이름 변경
 public class MemoListCellRenderer extends DefaultListCellRenderer {
     private static final String EMPTY = "";
 
@@ -24,7 +25,7 @@ public class MemoListCellRenderer extends DefaultListCellRenderer {
     }
 
     private static @NotNull String getTitle(Memo memo) {
-        String firstLine = memo.content()
+        String firstLine = memo.getContent()
                 .lines()
                 .findFirst()
                 .orElse(EMPTY)
