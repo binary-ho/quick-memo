@@ -4,7 +4,15 @@ plugins {
 }
 
 group = "com.quickmemo"
-version = "1.0-SNAPSHOT"
+
+fun parseVersionFromPlugin(): String {
+    val pluginXml = file("src/main/resources/META-INF/plugin.xml")
+    val pattern = "<version>([^<]+)</version>".toRegex()
+    val match = pattern.find(pluginXml.readText())
+    return match?.groupValues?.get(1) ?: throw GradleException("Version not found in plugin.xml")
+}
+
+version = parseVersionFromPlugin()
 
 repositories {
     mavenCentral()
@@ -30,14 +38,15 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("233")
-        untilBuild.set("243.*")
+        untilBuild.set("251.*")
+        version.set(project.version.toString())
     }
 
     runIde {
-        systemProperty("idea.config.path", "${buildDir}/idea-sandbox/config-test")
-        systemProperty("idea.system.path", "${buildDir}/idea-sandbox/system-test")
-        systemProperty("idea.plugins.path", "${buildDir}/idea-sandbox/plugins-test")
-        systemProperty("idea.log.path", "${buildDir}/idea-sandbox/log-test")
+        systemProperty("idea.config.path", "${layout.buildDirectory}/idea-sandbox/config-test")
+        systemProperty("idea.system.path", "${layout.buildDirectory}/idea-sandbox/system-test")
+        systemProperty("idea.plugins.path", "${layout.buildDirectory}/idea-sandbox/plugins-test")
+        systemProperty("idea.log.path", "${layout.buildDirectory}/idea-sandbox/log-test")
     }
 
     signPlugin {
