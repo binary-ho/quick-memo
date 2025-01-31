@@ -16,7 +16,7 @@ import java.util.List;
         storages = {@Storage("quickMemo.xml")}
 )
 public final class MemoState implements PersistentStateComponent<SavedMemos> {
-    private Memos memos = new Memos();
+    private final Memos memos = new Memos();
 
     public List<Memo> getAll() {
         return memos.getAll();
@@ -63,9 +63,8 @@ public final class MemoState implements PersistentStateComponent<SavedMemos> {
 
     @Override
     public void loadState(@NotNull SavedMemos state) {
-        memos = new Memos();
         state.memos.stream()
             .map(saved -> new Memo(saved.id, saved.content, saved.createdAt))
-            .forEach(memos::add);
+            .forEach(memos::update);
     }
 }

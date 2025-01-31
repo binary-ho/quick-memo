@@ -255,7 +255,6 @@ public class MemoToolWindow {
     private void createNewMemo() {
         try {
             String id = memoService.createEmptyMemo();
-            System.out.println("New memo created: " + id);
 
             refreshMemoList();
 
@@ -322,7 +321,6 @@ public class MemoToolWindow {
 
     public void refreshMemoList() {
         List<Memo> allMemos = this.memoService.getAllMemos();
-        System.out.println("Refreshing memo list: " + allMemos.size());
 
         listModel.clear();
 
@@ -354,7 +352,6 @@ public class MemoToolWindow {
         for (int i = 0; i < listModel.size(); i++) {
             if (listModel.getElementAt(i).getId().equals(id)) {
                 memos.setSelectedIndex(i);
-                System.out.println("Selected memo: " + id);
                 break;
             }
         }
@@ -372,7 +369,6 @@ public class MemoToolWindow {
                 currentMemo.getMemo().getCreatedAt()
             );
             memoService.updateMemo(updatedMemo);
-            System.out.println("Memo updated: " + updatedMemo.getId());
             refreshMemoList();
             memos.repaint();
         } catch (IllegalArgumentException e) {
