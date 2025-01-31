@@ -5,8 +5,8 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.quickmemo.plugin.memo.Memo;
+import com.quickmemo.plugin.memo.Memos;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -15,47 +15,57 @@ import java.util.List;
         name = "QuickMemoContent",
         storages = {@Storage("quickMemo.xml")}
 )
-public final class MemoState implements PersistentStateComponent<Memos> {
-    private Memos state = new Memos();
+public final class MemoState implements PersistentStateComponent<SavedMemos> {
+    private Memos memos = new Memos();
 
     public List<Memo> getAll() {
-        return state.memos.values().stream()
-                .map(data -> new Memo(data.id, data.content, data.createdAt))
-                .toList();
+        return memos.getAll();
     }
 
-    public void add(Memo memo) {
-        if (!state.memos.containsKey(memo.id())) {
-            state.memos.put(memo.id(), new MemoLocalState(memo.id(), memo.content(), memo.createdAt()));
-        }
+    public Memo add(Memo memo) {
+        return memos.add(memo);
     }
 
-    public void update(Memo memo) {
-        MemoLocalState data = state.memos.get(memo.id());
-        if (data != null) {
-            data.content = memo.content();
-        }
+    public Memo update(Memo memo) {
+        return memos.update(memo);
     }
 
-    public void remove(String id) {
-        state.memos.remove(id);
+    public void remove(Memo memo) {
+        memos.remove(memo);
     }
 
     public boolean isExist(String id) {
-        return state.memos.containsKey(id);
+        if (id == null) {
+            return false;
+        }
+        return memos.isExist(id);
     }
 
     public boolean isEmpty() {
-        return state.memos.isEmpty();
+        return memos.isEmpty();
     }
 
     @Override
-    public @Nullable Memos getState() {
-        return state;
+    public @NotNull SavedMemos getState() {
+        return SavedMemos.from(convertSavedMemos());
+    }
+
+    private @NotNull List<SavedMemos.SavedMemo> convertSavedMemos() {
+        return memos.getAll()
+                .stream()
+                .map(memo -> SavedMemos.SavedMemo.of(
+                        memo.getId(),
+                        memo.getContent(),
+                        memo.getCreatedAt()
+                ))
+                .toList();
     }
 
     @Override
-    public void loadState(@NotNull Memos state) {
-        this.state = state;
+    public void loadState(@NotNull SavedMemos state) {
+        memos = new Memos();
+        state.memos.stream()
+            .map(saved -> new Memo(saved.id, saved.content, saved.createdAt))
+            .forEach(memos::add);
     }
 }
