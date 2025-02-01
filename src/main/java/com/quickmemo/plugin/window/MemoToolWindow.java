@@ -51,7 +51,7 @@ public class MemoToolWindow {
     public MemoToolWindow(Project project) {
         this.memoService = getMemoService(project);
         this.content = new JPanel(new BorderLayout());
-        this.editor = new MemoEditor();
+        this.editor = MemoEditor.getInstance();
         this.memoList = new MemoList();
         this.actionManager = new MemoActionManager(this);
         this.centerPanel = new JPanel(new CardLayout());
@@ -62,14 +62,11 @@ public class MemoToolWindow {
     }
 
     private void initializeLayout() {
-        // 중앙 패널 설정
         centerPanel.add(editor, LAYOUT_MEMO);
         centerPanel.add(EMPTY_LABEL, LAYOUT_EMPTY);
 
-        // 툴바 설정
         MemoToolbar toolbar = MemoToolbar.initializeWithActionManager(actionManager, content);
         
-        // 전체 레이아웃 구성
         content.add(toolbar, BorderLayout.NORTH);
         content.add(centerPanel, BorderLayout.CENTER);
     }
@@ -117,6 +114,7 @@ public class MemoToolWindow {
         } else {
             showEmptyState();
         }
+        editor.requestFocusOnEditor();
     }
 
     private static JBLabel getEmptyLabel() {
@@ -277,7 +275,7 @@ public class MemoToolWindow {
         }
     }
 
-    public JPanel getContent() {
+    public JComponent getContent() {
         return content;
     }
 
