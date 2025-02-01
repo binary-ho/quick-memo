@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDateTime;
 
 public class CurrentMemo {
-    private static final Memo EMPTY_MEMO = Memo.from("", LocalDateTime.now().toString());
+    private static final Memo EMPTY_MEMO = Memo.from("", LocalDateTime.now());
     public static final CurrentMemo UNSELECTED = new CurrentMemo(EMPTY_MEMO);
     
     private final Memo memo;

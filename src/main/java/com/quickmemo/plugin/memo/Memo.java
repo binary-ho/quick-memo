@@ -1,15 +1,17 @@
 package com.quickmemo.plugin.memo;
 
+import java.time.LocalDateTime;
+
 import static com.quickmemo.plugin.memo.MemoConstants.MAX_CONTENT_SIZE_BYTES;
 
 public class Memo {
     private final String id;
     private final String content;
-    private final String createdAt;
+    private final LocalDateTime createdAt;
 
     private static final String EMPTY_ID = "";
 
-    public Memo(String id, String content, String createdAt) {
+    public Memo(String id, String content, LocalDateTime createdAt) {
         validateCreatedAt(createdAt);
         validateContentSize(content);
         this.id = id;
@@ -17,7 +19,7 @@ public class Memo {
         this.createdAt = createdAt;
     }
 
-    public static Memo from(String content, String createdAt) {
+    public static Memo from(String content, LocalDateTime createdAt) {
         return new Memo(EMPTY_ID, content, createdAt);
     }
 
@@ -28,8 +30,8 @@ public class Memo {
         return new Memo(id, this.content, this.createdAt);
     }
 
-    private void validateCreatedAt(String createdAt) {
-        if (createdAt == null || createdAt.isBlank()) {
+    private void validateCreatedAt(LocalDateTime createdAt) {
+        if (createdAt == null || createdAt.toString().isBlank()) {
             throw new IllegalArgumentException("createdAt is required");
         }
     }
@@ -52,7 +54,7 @@ public class Memo {
         return content;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 

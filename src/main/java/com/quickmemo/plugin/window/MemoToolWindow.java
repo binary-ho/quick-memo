@@ -28,6 +28,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class MemoToolWindow {
@@ -172,9 +173,9 @@ public class MemoToolWindow {
         return new MemoService(repository);
     }
 
-    public void createNewMemo() {
+    public void createNewMemo(LocalDateTime createdAt) {
         try {
-            String id = memoService.createEmptyMemo();
+            String id = memoService.createEmptyMemo(createdAt);
             refreshMemoList();
             selectMemoById(id);
             editor.requestFocusOnEditor();

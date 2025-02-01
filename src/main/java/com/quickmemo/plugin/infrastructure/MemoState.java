@@ -53,18 +53,14 @@ public final class MemoState implements PersistentStateComponent<SavedMemos> {
     private @NotNull List<SavedMemos.SavedMemo> convertSavedMemos() {
         return memos.getAll()
                 .stream()
-                .map(memo -> SavedMemos.SavedMemo.of(
-                        memo.getId(),
-                        memo.getContent(),
-                        memo.getCreatedAt()
-                ))
+                .map(MemoMapper::toSavedMemo)
                 .toList();
     }
 
     @Override
     public void loadState(@NotNull SavedMemos state) {
         state.memos.stream()
-            .map(saved -> new Memo(saved.id, saved.content, saved.createdAt))
+            .map(MemoMapper::toMemo)
             .forEach(memos::update);
     }
 }

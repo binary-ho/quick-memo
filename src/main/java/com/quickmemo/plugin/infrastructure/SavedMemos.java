@@ -21,11 +21,11 @@ public class SavedMemos {
         }
 
         public static SavedMemo of(String id, String content, String createdAt) {
-            SavedMemo memo = new SavedMemo();
-            memo.id = id;
-            memo.content = content;
-            memo.createdAt = createdAt;
-            return memo;
+            SavedMemo savedMemo = new SavedMemo();
+            savedMemo.id = id;
+            savedMemo.content = content;
+            savedMemo.createdAt = createdAt;
+            return savedMemo;
         }
     }
 }

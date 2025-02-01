@@ -9,6 +9,7 @@ import com.quickmemo.plugin.window.MemoToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.time.LocalDateTime;
 
 public class MemoActionManager {
     private final MemoToolWindow window;
@@ -39,7 +40,8 @@ public class MemoActionManager {
         ) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                window.createNewMemo();
+                LocalDateTime createdAt = LocalDateTime.now();
+                window.createNewMemo(createdAt);
             }
         };
     }
