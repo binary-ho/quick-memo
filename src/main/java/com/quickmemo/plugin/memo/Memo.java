@@ -66,8 +66,6 @@ public class Memo {
         }
 
         Memo memo = (Memo) obj;
-        return this.id.equals(memo.id)
-            && this.content.equals(memo.content)
-            && this.createdAt.equals(memo.createdAt);
+        return this.id.equals(memo.id);
     }
 }
