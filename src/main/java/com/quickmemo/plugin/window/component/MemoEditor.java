@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
+    private static MemoEditor instance;
     private final JBTextArea textArea;
 
     private static final int TOP_BOTTOM_PADDING = 8;
@@ -19,7 +20,14 @@ public class MemoEditor extends JPanel {
     private static final JBEmptyBorder INPUT_AREA_PADDING = JBUI.Borders
             .empty(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING);
 
-    public MemoEditor() {
+    public static MemoEditor getInstance() {
+        if (instance == null) {
+            instance = new MemoEditor();
+        }
+        return instance;
+    }
+
+    private MemoEditor() {
         super(new BorderLayout());
         textArea = createTextArea();
         addMouseWheelListener(textArea);
@@ -33,6 +41,7 @@ public class MemoEditor extends JPanel {
 
     private JBTextArea createTextArea() {
         JBTextArea area = new JBTextArea();
+        area.setFont(area.getFont().deriveFont((float) JBUI.scale(14)));
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setBorder(INPUT_AREA_PADDING);

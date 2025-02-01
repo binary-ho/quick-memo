@@ -6,8 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
-import com.quickmemo.plugin.window.MemoToolWindow;
-import com.quickmemo.plugin.window.MemoToolWindowFactory;
+import com.quickmemo.plugin.window.component.MemoEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,17 +37,19 @@ public class OpenMemoAction extends AnAction {
             return;
         }
 
-        project.getMessageBus().connect().subscribe(ToolWindowManagerListener.TOPIC, new ToolWindowManagerListener() {
+        project.getMessageBus().connect().subscribe(
+                ToolWindowManagerListener.TOPIC,
+                new ToolWindowManagerListener() {
             @Override
             public void toolWindowShown(@NotNull ToolWindow shownWindow) {
-                if (WINDOW_NAME.equals(shownWindow.getId())) {
-                    SwingUtilities.invokeLater(() -> {
-                        MemoToolWindow memoToolWindow = MemoToolWindowFactory.findMemoToolWindowInstance();
-                        if (memoToolWindow != null) {
-                            memoToolWindow.focusOnEditor();
-                        }
-                    });
+                if (!WINDOW_NAME.equals(shownWindow.getId())) {
+                    return;
                 }
+
+                SwingUtilities.invokeLater(() -> {
+                    MemoEditor memoEditor = MemoEditor.getInstance();
+                    memoEditor.requestFocusOnEditor();
+                });
             }
         });
 

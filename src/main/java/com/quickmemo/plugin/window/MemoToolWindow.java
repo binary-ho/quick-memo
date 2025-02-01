@@ -51,7 +51,7 @@ public class MemoToolWindow {
     public MemoToolWindow(Project project) {
         this.memoService = getMemoService(project);
         this.content = new JPanel(new BorderLayout());
-        this.editor = new MemoEditor();
+        this.editor = MemoEditor.getInstance();
         this.memoList = new MemoList();
         this.actionManager = new MemoActionManager(this);
         this.centerPanel = new JPanel(new CardLayout());
@@ -281,13 +281,5 @@ public class MemoToolWindow {
 
     public CurrentMemo getCurrentMemo() {
         return currentMemo;
-    }
-
-    public void focusOnEditor() {
-        SwingUtilities.invokeLater(() -> {
-            CardLayout cardLayout = (CardLayout) centerPanel.getLayout();
-            cardLayout.show(centerPanel, LAYOUT_MEMO);
-            editor.requestFocusOnEditor();
-        });
     }
 }
