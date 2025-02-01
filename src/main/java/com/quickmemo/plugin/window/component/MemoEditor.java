@@ -79,10 +79,6 @@ public class MemoEditor extends JPanel {
 
     public void requestFocusOnEditor() {
         textArea.setCaretPosition(textArea.getText().length());
-        textArea.setEditable(true);
-        textArea.setEnabled(true);
-        textArea.setFocusable(true);
         textArea.grabFocus();
-        textArea.requestFocusInWindow();
     }
 }
