@@ -39,7 +39,13 @@ public class OpenMemoAction extends AnAction {
 
         project.getMessageBus().connect().subscribe(
                 ToolWindowManagerListener.TOPIC,
-                new ToolWindowManagerListener() {
+                getWindowManagerListener()
+        );
+        window.show(null);
+    }
+
+    private ToolWindowManagerListener getWindowManagerListener() {
+        return new ToolWindowManagerListener() {
             @Override
             public void toolWindowShown(@NotNull ToolWindow shownWindow) {
                 if (!WINDOW_NAME.equals(shownWindow.getId())) {
@@ -51,9 +57,7 @@ public class OpenMemoAction extends AnAction {
                     memoEditor.requestFocusOnEditor();
                 });
             }
-        });
-
-        window.show(null);
+        };
     }
 
     private @Nullable ToolWindow getWindow(Project project) {
