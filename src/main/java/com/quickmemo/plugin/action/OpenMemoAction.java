@@ -5,8 +5,13 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
+import com.quickmemo.plugin.window.MemoToolWindow;
+import com.quickmemo.plugin.window.MemoToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 public class OpenMemoAction extends AnAction {
 
@@ -24,13 +29,30 @@ public class OpenMemoAction extends AnAction {
 
     private void toggleWindow(Project project) {
         ToolWindow window = getWindow(project);
-        if (window != null) {
-            if (window.isVisible()) {
-                window.hide();
-            } else {
-                window.show();
-            }
+        if (window == null) {
+            return;
         }
+
+        if (window.isVisible()) {
+            window.hide();
+            return;
+        }
+
+        project.getMessageBus().connect().subscribe(ToolWindowManagerListener.TOPIC, new ToolWindowManagerListener() {
+            @Override
+            public void toolWindowShown(@NotNull ToolWindow shownWindow) {
+                if (WINDOW_NAME.equals(shownWindow.getId())) {
+                    SwingUtilities.invokeLater(() -> {
+                        MemoToolWindow memoToolWindow = MemoToolWindowFactory.findMemoToolWindowInstance();
+                        if (memoToolWindow != null) {
+                            memoToolWindow.focusOnEditor();
+                        }
+                    });
+                }
+            }
+        });
+
+        window.show(null);
     }
 
     private @Nullable ToolWindow getWindow(Project project) {

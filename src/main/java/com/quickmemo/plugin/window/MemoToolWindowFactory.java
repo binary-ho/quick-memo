@@ -14,12 +14,17 @@ import java.awt.*;
 public class MemoToolWindowFactory implements ToolWindowFactory {
     private static final int DEFAULT_SIZE = 400;
     private static final Dimension DEFAULT_DIMENSION_SIZE = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
+    private static MemoToolWindow memoToolWindow;
+
+    public static MemoToolWindow findMemoToolWindowInstance() {
+        return memoToolWindow;
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         toolWindow.setType(ToolWindowType.FLOATING, null);
 
-        MemoToolWindow memoToolWindow = new MemoToolWindow(project);
+        memoToolWindow = new MemoToolWindow(project);
         JComponent component = memoToolWindow.getContent();
 
         component.setPreferredSize(DEFAULT_DIMENSION_SIZE);
