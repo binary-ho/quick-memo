@@ -7,17 +7,28 @@ import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
     private final JBTextArea textArea;
-    public static final JBEmptyBorder INPUT_AREA_PADDING = JBUI.Borders.empty(8, 10);
+
+    private static final int TOP_BOTTOM_PADDING = 8;
+    private static final int LEFT_RIGHT_PADDING = 10;
+    private static final JBEmptyBorder INPUT_AREA_PADDING = JBUI.Borders
+            .empty(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING);
 
     public MemoEditor() {
         super(new BorderLayout());
-        this.textArea = createTextArea();
-        add(new JBScrollPane(textArea), BorderLayout.CENTER);
+        textArea = createTextArea();
+        addMouseWheelListener(textArea);
+    }
+
+    private void addMouseWheelListener(JBTextArea textArea) {
+        JBScrollPane scrollPane = new JBScrollPane(textArea);
+        scrollPane.addMouseWheelListener(this::handleFontSize);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private JBTextArea createTextArea() {
@@ -25,25 +36,23 @@ public class MemoEditor extends JPanel {
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setBorder(INPUT_AREA_PADDING);
-        
-        area.addMouseWheelListener(
-                event -> adjustFontSize(event, area)
-        );
         return area;
     }
 
-    private void adjustFontSize(MouseWheelEvent e, JBTextArea area) {
-        if (e.isControlDown()) {
-            Font font = area.getFont();
-            int fontSize = font.getSize();
-
-            if (e.getWheelRotation() < 0 && fontSize < 72) {
-                area.setFont(font.deriveFont((float) fontSize + 1));
-            } else if (e.getWheelRotation() > 0 && fontSize > 8) {
-                area.setFont(font.deriveFont((float) fontSize - 1));
-            }
-            e.consume();
+    private void handleFontSize(MouseWheelEvent event) {
+        if (!event.isControlDown()) {
+            return;
         }
+
+        Font font = textArea.getFont();
+        int fontSize = font.getSize();
+
+        if (event.getWheelRotation() < 0 && fontSize < 72) {
+            textArea.setFont(font.deriveFont((float) fontSize + 1));
+        } else if (event.getWheelRotation() > 0 && fontSize > 8) {
+            textArea.setFont(font.deriveFont((float) fontSize - 1));
+        }
+        event.consume();
     }
 
     public void setText(String text) {
@@ -55,7 +64,8 @@ public class MemoEditor extends JPanel {
     }
 
     public void addDocumentListener(DocumentListener listener) {
-        textArea.getDocument().addDocumentListener(listener);
+        Document document = textArea.getDocument();
+        document.addDocumentListener(listener);
     }
 
     public void requestFocusOnEditor() {
