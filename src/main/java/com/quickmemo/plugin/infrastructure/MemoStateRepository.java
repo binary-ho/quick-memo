@@ -15,17 +15,16 @@ public class MemoStateRepository implements MemoRepository {
     }
 
     @Override
-    public void save(Memo memo) {
-        if (memoState.isExist(memo.id())) {
-            memoState.update(memo);
-            return;
+    public Memo save(Memo memo) {
+        if (memoState.isExist(memo.getId())) {
+            return memoState.update(memo);
         }
-        memoState.add(memo);
+        return memoState.add(memo);
     }
 
     @Override
     public void remove(Memo memo) {
-        memoState.remove(memo.id());
+        memoState.remove(memo);
     }
 
     @Override

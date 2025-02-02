@@ -1,15 +1,16 @@
-# Gradle
-.gradle/
-build/
-
 # IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 out/
 
-# Compiled files
+# Build
+.gradle/
+build/
+bin/
 *.class
+*.jar
+*.war
 
 # Logs
 *.log

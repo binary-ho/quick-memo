@@ -1,9 +1,6 @@
 package com.quickmemo.plugin.memo;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.quickmemo.plugin.memo.MemoConstants.MAX_MEMO_COUNT;
 
@@ -18,17 +15,24 @@ public class Memos {
         return new LinkedList<>(memos.values());
     }
 
-    public void add(Memo memo) {
+    public Memo add(Memo memo) {
+        if (isIdNotEmpty(memo)) {
+            return memo;
+        }
         validateMemoLimit(memos.size());
-        memos.putIfAbsent(memo.id(), memo);
+
+        Memo assignedId = assignId(memo);
+        memos.putIfAbsent(assignedId.getId(), assignedId);
+        return assignedId;
     }
 
-    public void addAll(List<Memo> memos) {
-        int totalSize = this.memos.size() + memos.size();
-        validateMemoLimit(totalSize);
-        for (Memo memo : memos) {
-            add(memo);
-        }
+    // TODO: ID 생성기를 주입 받도록 변경
+    private Memo assignId(Memo memo) {
+        return memo.fromId(UUID.randomUUID().toString());
+    }
+
+    private boolean isIdNotEmpty(Memo memo) {
+        return !memo.getId().isEmpty();
     }
 
     private void validateMemoLimit(int memoSize) {
@@ -39,12 +43,15 @@ public class Memos {
         }
     }
 
-    public void update(Memo memo) {
-        memos.put(memo.id(), memo);
+    public Memo update(Memo memo) {
+        validateIdNotEmpty(memo);
+        memos.put(memo.getId(), memo);
+        return memo;
     }
 
-    public void remove(String id) {
-        memos.remove(id);
+    public void remove(Memo memo) {
+        validateIdNotEmpty(memo);
+        memos.remove(memo.getId());
     }
 
     public boolean isExist(String id) {
@@ -59,7 +66,9 @@ public class Memos {
         return memos.size();
     }
 
-    public int remainingCapacity() {
-        return MAX_MEMO_COUNT - memos.size();
+    private void validateIdNotEmpty(Memo memo) {
+        if (memo.getId().isEmpty()) {
+            throw new IllegalArgumentException("Memo ID is required");
+        }
     }
 }

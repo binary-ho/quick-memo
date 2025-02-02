@@ -2,9 +2,9 @@
 <idea-plugin>
     <id>com.quickmemo.plugin</id>
     <name>Quick Memo</name>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
-    <idea-version since-build="232" until-build="243.*"/>
+    <idea-version since-build="232" until-build="251.*"/>
 
     <description><![CDATA[
     <p>Just open to take notes in your IDE</p>
@@ -30,12 +30,15 @@
         <li>Added text size adjustment feature using Ctrl + Mouse Wheel</li>
         <li>Added toast popup notification when creating a new memo</li>
         <li>Added default padding to text input area in TextArea for improved readability</li>
+        <li>Added auto-focus to editor when QuickMemo window opens.</li>
       </ol>
+      <br>
       <ol>
         <li>MacOS 단축키 'Option + M'로 변경</li>
         <li>Ctrl + Mouse Wheel로 폰트 크기 조절 가능</li>
         <li>메모 추가시 toast popup으로 알림</li>
         <li>TextArea에 기본 패딩 추가 (기존엔 딱 붙어 있었다.)</li>
+        <li>QuickMemo 창이 열릴 때 에디터에 자동 포커스 추가</li>
       </ol>
     ]]></change-notes>
 

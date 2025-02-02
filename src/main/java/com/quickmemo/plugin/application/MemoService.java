@@ -4,7 +4,6 @@ import com.quickmemo.plugin.memo.Memo;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 public final class MemoService {
     private final MemoRepository memoRepository;
@@ -13,7 +12,6 @@ public final class MemoService {
     - macOS: Option + M
     - windows/linux: Ctrl + Q
     """;
-
     private static final String EMPTY_MEMO = "";
 
     public MemoService(MemoRepository memoRepository) {
@@ -22,21 +20,18 @@ public final class MemoService {
     }
 
     // TODO: id를 할당하는 책임은 누가?
-    public void createMemo(String content) {
-        String id = UUID.randomUUID().toString();
+    public void createNewMemo(String content) {
         String createdAt = LocalDateTime.now().toString();
-
-        Memo memo = new Memo(id, content, createdAt);
+        Memo memo = Memo.from(content, createdAt);
         memoRepository.save(memo);
     }
 
     public String createEmptyMemo() {
-        String id = UUID.randomUUID().toString();
         String createdAt = LocalDateTime.now().toString();
 
-        Memo memo = new Memo(id, EMPTY_MEMO, createdAt);
-        memoRepository.save(memo);
-        return id;
+        Memo memo = Memo.from(EMPTY_MEMO, createdAt);
+        Memo saved = memoRepository.save(memo);
+        return saved.getId();
     }
 
     public void updateMemo(Memo memo) {
@@ -53,7 +48,7 @@ public final class MemoService {
 
     private void initializeDefaultMemoIfEmpty() {
         if (memoRepository.isEmpty()) {
-            createMemo(WELCOME_MEMO);
+            createNewMemo(WELCOME_MEMO);
         }
     }
 }
