@@ -27,7 +27,6 @@
     <change-notes><![CDATA[
       <ol>
         <li>Changed default MacOS shortcut from 'Option + Shift + M' to 'Option + M' for better accessibility</li>
-        <li>Added default padding to text input area in TextArea for improved readability</li>
         <li>Added text size adjustment feature using Ctrl + Mouse Wheel</li>
         <li>Added toast popup notification when creating a new memo</li>
         <li>Added default padding to text input area in TextArea for improved readability</li>
