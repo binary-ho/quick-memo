@@ -1,45 +1,62 @@
 package com.quickmemo.plugin.new_ui.editor;
 
+import com.quickmemo.plugin.new_ui.SelectedMemo;
+
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 public class MemoEditorView extends JPanel {
     private final MemoEditor editor;
-    // TODO: CurrentMemo를 여기에 두어야 하는지?
 
     private static final String LAYOUT_MEMO = "MEMO";
     private static final String LAYOUT_EMPTY = "EMPTY";
-    public static final CardLayout EDITOR_VIEW_LAYOUT = new CardLayout();
+    private static final CardLayout EDITOR_VIEW_LAYOUT = new CardLayout();
 
-    public MemoEditorView(MemoEditor editor, EmptyMemoLabel emptyMemoLabel) {
+    public MemoEditorView(MemoEditor editor, EmptyMemoViewLabel emptyMemoViewLabel, SelectedMemo selectedMemo) {
         super(EDITOR_VIEW_LAYOUT);
         this.editor = editor;
+
         addComponentToView(this.editor, LAYOUT_MEMO);
-        addComponentToView(emptyMemoLabel, LAYOUT_EMPTY);
+        addComponentToView(emptyMemoViewLabel, LAYOUT_EMPTY);
+        
+        selectedMemo.addListener(this::updateEditorView);
+        updateEditorView(selectedMemo);
     }
 
     private void addComponentToView(Component component, String name) {
         this.add(component, name);
     }
 
-    public void showMemoState() {
+    private void updateEditorView(final SelectedMemo memo) {
+        if (memo.isUnselected()) {
+            emptyEditorContent();
+            showEmptyMemo();
+            return;
+        }
+
+        setEditorContent(memo.getMemo().getContent());
+        showMemoEditor();
+        requestFocusOnEditor();
+    }
+
+    private void showMemoEditor() {
         ((CardLayout) getLayout()).show(this, LAYOUT_MEMO);
     }
 
-    public void showEmptyState() {
+    private void showEmptyMemo() {
         ((CardLayout) getLayout()).show(this, LAYOUT_EMPTY);
     }
 
-    public MemoEditor getEditor() {
-        return editor;
-    }
-
-    public void setText(String text) {
+    private void setEditorContent(String text) {
         editor.setText(text);
     }
 
-    public String getText() {
+    private void emptyEditorContent() {
+        editor.setText("");
+    }
+
+    public String getEditorContent() {
         return editor.getText();
     }
 

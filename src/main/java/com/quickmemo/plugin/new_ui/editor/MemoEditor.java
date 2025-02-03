@@ -12,7 +12,7 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
-    private static MemoEditor INSTANCE = new MemoEditor();
+    private static final MemoEditor INSTANCE = new MemoEditor();
     private final JBTextArea textArea;
 
     private static final int TOP_BOTTOM_PADDING = 8;
@@ -21,9 +21,6 @@ public class MemoEditor extends JPanel {
             .empty(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING);
 
     public static MemoEditor getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new MemoEditor();
-        }
         return INSTANCE;
     }
 

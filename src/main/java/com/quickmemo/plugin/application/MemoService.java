@@ -21,12 +21,12 @@ public final class MemoService {
 
     // TODO: id를 할당하는 책임은 누가?
     public void createNewMemo(String content, LocalDateTime createdAt) {
-        Memo memo = Memo.from(content, createdAt);
+        Memo memo = Memo.createFrom(content, createdAt);
         memoRepository.save(memo);
     }
 
     public String createEmptyMemo(LocalDateTime createdAt) {
-        Memo memo = Memo.from(EMPTY_MEMO, createdAt);
+        Memo memo = Memo.createFrom(EMPTY_MEMO, createdAt);
         Memo saved = memoRepository.save(memo);
         return saved.getId();
     }
