@@ -19,11 +19,19 @@ public class Memo {
         this.createdAt = createdAt;
     }
 
-    public static Memo from(String content, LocalDateTime createdAt) {
+    public static Memo createEmptyMemo() {
+        return new Memo(EMPTY_ID, "", LocalDateTime.now());
+    }
+
+    public static Memo createFrom(String content, LocalDateTime createdAt) {
         return new Memo(EMPTY_ID, content, createdAt);
     }
 
-    public Memo fromId(String id) {
+    public Memo copyWithContent(String content) {
+        return new Memo(this.id, content, this.createdAt);
+    }
+
+    public Memo copyWithId(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("id is required");
         }

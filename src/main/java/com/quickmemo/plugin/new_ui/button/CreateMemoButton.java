@@ -11,21 +11,22 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
-public class OpenMemoListButton extends ActionButton {
-    private final AnAction action;
+public class CreateMemoButton extends ActionButton {
+    private final AnAction createMemoAction;
 
-    public static final String OPEN_MEMO_LIST_NAME = "Show Memo List";
-    public static final String OPEN_MEMO_LIST_DESCRIPTION = "Show all memos";
-    private static final Icon OPEN_MEMO_LIST_BUTTON_ICON = AllIcons.Actions.Minimap;
+    private static final String NEW_MEMO_BUTTON_NAME = "New Memo";
+    private static final String NEW_MEMO_BUTTON_DESCRIPTION = "Create new memo";
+    private static final Icon NEW_MEMO_BUTTON_ICON = AllIcons.General.Add;
 
-    public OpenMemoListButton(Consumer<Component> consumer) {
-        this.action = createAction(consumer);
+    public CreateMemoButton(Runnable action, Consumer<Component> afterPerformed) {
+        this.createMemoAction = createAction(action, afterPerformed);
     }
 
-    private AnAction createAction(Consumer<Component> listener) {
-        return new AnAction(OPEN_MEMO_LIST_NAME, OPEN_MEMO_LIST_DESCRIPTION, OPEN_MEMO_LIST_BUTTON_ICON) {
+    private AnAction createAction(Runnable runnable, Consumer<Component> listener) {
+        return new AnAction(NEW_MEMO_BUTTON_NAME, NEW_MEMO_BUTTON_DESCRIPTION, NEW_MEMO_BUTTON_ICON) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent event) {
+                runnable.run();
                 acceptIfMouseEvent(event, listener);
             }
         };
@@ -43,6 +44,6 @@ public class OpenMemoListButton extends ActionButton {
 
     @Override
     public AnAction getCreateMemoAction() {
-        return action;
+        return createMemoAction;
     }
 }

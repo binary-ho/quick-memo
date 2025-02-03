@@ -2,16 +2,15 @@ package com.quickmemo.plugin.new_ui;
 
 import com.quickmemo.plugin.memo.Memo;
 
-import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class SelectedMemo {
-    private static final Memo EMPTY_MEMO = Memo.createFrom("", LocalDateTime.now());
+    private static final Memo UNSELECTED_MEMO = Memo.createEmptyMemo();
     private Memo selectedMemo;
 
-    private static final SelectedMemo UNSELECTED = new SelectedMemo(EMPTY_MEMO);
+    private static final SelectedMemo UNSELECTED = new SelectedMemo(UNSELECTED_MEMO);
     private static final SelectedMemo INSTANCE = UNSELECTED;
 
     private final List<Consumer<SelectedMemo>> listeners = new LinkedList<>();
@@ -31,6 +30,9 @@ public class SelectedMemo {
     public void update(Memo memo) {
         synchronized (this) {
             this.selectedMemo = memo;
+            if (memo == null || memo.getId() == null) {
+                this.selectedMemo = UNSELECTED_MEMO;
+            }
             notifyListeners(this);
         }
     }

@@ -19,8 +19,7 @@ public class MemoEditorView extends JPanel {
 
         addComponentToView(this.editor, LAYOUT_MEMO);
         addComponentToView(emptyMemoViewLabel, LAYOUT_EMPTY);
-        
-        selectedMemo.addListener(this::updateEditorView);
+
         updateEditorView(selectedMemo);
     }
 
@@ -28,7 +27,7 @@ public class MemoEditorView extends JPanel {
         this.add(component, name);
     }
 
-    private void updateEditorView(final SelectedMemo memo) {
+    public void updateEditorView(final SelectedMemo memo) {
         if (memo.isUnselected()) {
             emptyEditorContent();
             showEmptyMemo();

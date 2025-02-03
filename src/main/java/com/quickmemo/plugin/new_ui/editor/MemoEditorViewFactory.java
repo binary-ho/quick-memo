@@ -11,7 +11,10 @@ public class MemoEditorViewFactory {
 
     public static MemoEditorView create(MemoEditor memoEditor, SelectedMemo selectedMemo, Consumer<Memo> saveMemoConsumer) {
         EmptyMemoViewLabel emptyMemoViewLabel = new EmptyMemoViewLabel();
+
         MemoEditorView editorView = new MemoEditorView(memoEditor, emptyMemoViewLabel, selectedMemo);
+        selectedMemo.addListener(editorView::updateEditorView);
+
         addListenerToEditorView(editorView, selectedMemo, saveMemoConsumer);
         return editorView;
     }

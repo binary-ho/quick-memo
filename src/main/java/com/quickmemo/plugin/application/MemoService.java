@@ -25,10 +25,9 @@ public final class MemoService {
         memoRepository.save(memo);
     }
 
-    public String createEmptyMemo(LocalDateTime createdAt) {
+    public Memo createEmptyMemo(LocalDateTime createdAt) {
         Memo memo = Memo.createFrom(EMPTY_MEMO, createdAt);
-        Memo saved = memoRepository.save(memo);
-        return saved.getId();
+        return memoRepository.save(memo);
     }
 
     public void updateMemo(Memo memo) {

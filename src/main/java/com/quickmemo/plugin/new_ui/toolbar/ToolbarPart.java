@@ -11,10 +11,10 @@ import java.util.List;
 public class ToolbarPart {
     private final ActionToolbar toolbar;
 
-    public static ToolbarPart create(String toolbarName, JComponent targetComponent, List<ActionButton> buttons) {
+    public static ToolbarPart create(String toolbarName, JComponent mainWindow, List<ActionButton> buttons) {
         DefaultActionGroup actionGroup = createActionGroup(buttons);
         ActionToolbar toolbar = createActionToolbar(toolbarName, actionGroup);
-        toolbar.setTargetComponent(targetComponent);
+        toolbar.setTargetComponent(mainWindow);
         toolbar.setMiniMode(true);
         return new ToolbarPart(toolbar);
     }
@@ -22,7 +22,7 @@ public class ToolbarPart {
     private static DefaultActionGroup createActionGroup(List<ActionButton> buttons) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         buttons.stream()
-                .map(ActionButton::getAction)
+                .map(ActionButton::getCreateMemoAction)
                 .forEach(actionGroup::add);
         return actionGroup;
     }
