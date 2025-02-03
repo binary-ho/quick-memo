@@ -86,6 +86,8 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
                 .createContent(mainWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
         addEditorOpenListener(project);
+
+        resizeWindow(mainWindowContent);
     }
 
     private void selectFirstMemo(MemoService memoService, SelectedMemo selectedMemo) {
@@ -123,5 +125,21 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
                 });
             }
         };
+    }
+
+    private void resizeWindow(JPanel mainWindowContent) {
+        SwingUtilities.invokeLater(() -> {
+            Timer timer = new Timer(100, event -> {
+                Window win = SwingUtilities.getWindowAncestor(mainWindowContent);
+                if (win != null) {
+                    win.setPreferredSize(DEFAULT_DIMENSION_SIZE);
+                    win.setSize(DEFAULT_DIMENSION_SIZE);
+                    win.pack();
+                }
+                ((Timer) event.getSource()).stop();
+            });
+            timer.setRepeats(false);
+            timer.start();
+        });
     }
 }
