@@ -28,7 +28,7 @@ public class Memos {
 
     // TODO: ID 생성기를 주입 받도록 변경
     private Memo assignId(Memo memo) {
-        return memo.fromId(UUID.randomUUID().toString());
+        return memo.copyWithId(UUID.randomUUID().toString());
     }
 
     private boolean isIdNotEmpty(Memo memo) {

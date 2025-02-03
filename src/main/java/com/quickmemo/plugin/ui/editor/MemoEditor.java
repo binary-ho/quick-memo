@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.window.component;
+package com.quickmemo.plugin.ui.editor;
 
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
@@ -12,7 +12,7 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
-    private static MemoEditor instance;
+    private static final MemoEditor INSTANCE = new MemoEditor();
     private final JBTextArea textArea;
 
     private static final int TOP_BOTTOM_PADDING = 8;
@@ -21,22 +21,13 @@ public class MemoEditor extends JPanel {
             .empty(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING);
 
     public static MemoEditor getInstance() {
-        if (instance == null) {
-            instance = new MemoEditor();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     private MemoEditor() {
         super(new BorderLayout());
-        textArea = createTextArea();
+        this.textArea = createTextArea();
         addMouseWheelListener(textArea);
-    }
-
-    private void addMouseWheelListener(JBTextArea textArea) {
-        JBScrollPane scrollPane = new JBScrollPane(textArea);
-        scrollPane.addMouseWheelListener(this::handleFontSize);
-        add(scrollPane, BorderLayout.CENTER);
     }
 
     private JBTextArea createTextArea() {
@@ -46,6 +37,12 @@ public class MemoEditor extends JPanel {
         area.setWrapStyleWord(true);
         area.setBorder(INPUT_AREA_PADDING);
         return area;
+    }
+
+    private void addMouseWheelListener(JBTextArea textArea) {
+        JBScrollPane scrollPane = new JBScrollPane(textArea);
+        scrollPane.addMouseWheelListener(this::handleFontSize);
+        this.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void handleFontSize(MouseWheelEvent event) {

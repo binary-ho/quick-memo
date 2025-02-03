@@ -19,11 +19,15 @@ public class Memo {
         this.createdAt = createdAt;
     }
 
-    public static Memo from(String content, LocalDateTime createdAt) {
+    public static Memo createFrom(String content, LocalDateTime createdAt) {
         return new Memo(EMPTY_ID, content, createdAt);
     }
 
-    public Memo fromId(String id) {
+    public Memo copyWithContent(String content) {
+        return new Memo(this.id, content, this.createdAt);
+    }
+
+    public Memo copyWithId(String id) {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("id is required");
         }
@@ -36,7 +40,7 @@ public class Memo {
         }
     }
 
-    private static void validateContentSize(String content) {
+    private void validateContentSize(String content) {
         byte[] contentBytes = content.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         if (contentBytes.length >= MAX_CONTENT_SIZE_BYTES) {
             throw new IllegalArgumentException(

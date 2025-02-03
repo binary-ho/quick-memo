@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.ui;
+package com.quickmemo.plugin.ui.toast;
 
 import com.intellij.notification.impl.NotificationsManagerImpl;
 import com.intellij.ui.JBColor;
@@ -23,7 +23,7 @@ public class ToastPopup extends JWindow {
     private final Timer fadeTimer;
     private float opacity = OPACITY_START;
 
-    public ToastPopup(String message, Component parent) {
+    ToastPopup(String message, Component parent) {
         // 절대 위치 사용
         setLayout(null);
         setSize(POPUP_WIDTH, POPUP_HEIGHT + ARROW_SIZE);
