@@ -30,20 +30,6 @@ public class MemoListPopup {
         addOnMemoSelected(this.listView, onMemoSelected);
     }
 
-    private void addOnMemoSelected(MemoListView listView, Consumer<Memo> onMemoSelected) {
-        listView.addListSelectionListener(event -> {
-            if (event.getValueIsAdjusting()) {
-                return;
-            }
-
-            Memo selectedMemo = listView.getSelectedMemo();
-            if (selectedMemo != null) {
-                onMemoSelected.accept(selectedMemo);
-                closePopupIfOpen();
-            }
-        });
-    }
-
     // TODO: 입력이 RightToolbar 위치가 들어오면 된다.
     public void open(Component anchor) {
         closePopupIfOpen();
@@ -56,6 +42,20 @@ public class MemoListPopup {
 
         popupLayout = createPopup(listPanel, list);
         popupLayout.showUnderneathOf(anchor);
+    }
+
+    private void addOnMemoSelected(MemoListView listView, Consumer<Memo> onMemoSelected) {
+        listView.addListSelectionListener(event -> {
+            if (event.getValueIsAdjusting()) {
+                return;
+            }
+
+            Memo selectedMemo = listView.getSelectedMemo();
+            if (selectedMemo != null) {
+                onMemoSelected.accept(selectedMemo);
+                closePopupIfOpen();
+            }
+        });
     }
 
     private JPanel getListPanel(List<Memo> allMemos, JBList<Memo> list) {
