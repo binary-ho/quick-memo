@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.new_ui;
+package com.quickmemo.plugin.new_ui.window;
 
 import javax.swing.*;
 import java.awt.*;

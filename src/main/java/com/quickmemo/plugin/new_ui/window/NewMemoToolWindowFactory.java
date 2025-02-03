@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.new_ui;
+package com.quickmemo.plugin.new_ui.window;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
