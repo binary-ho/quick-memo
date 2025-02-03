@@ -19,10 +19,6 @@ public class Memo {
         this.createdAt = createdAt;
     }
 
-    public static Memo createEmptyMemo() {
-        return new Memo(EMPTY_ID, "", LocalDateTime.now());
-    }
-
     public static Memo createFrom(String content, LocalDateTime createdAt) {
         return new Memo(EMPTY_ID, content, createdAt);
     }

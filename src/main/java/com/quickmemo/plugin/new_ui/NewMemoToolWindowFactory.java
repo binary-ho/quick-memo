@@ -18,6 +18,7 @@ import com.quickmemo.plugin.new_ui.button.OpenMemoListButton;
 import com.quickmemo.plugin.new_ui.editor.MemoEditor;
 import com.quickmemo.plugin.new_ui.editor.MemoEditorView;
 import com.quickmemo.plugin.new_ui.editor.MemoEditorViewFactory;
+import com.quickmemo.plugin.new_ui.memo.SelectedMemo;
 import com.quickmemo.plugin.new_ui.popup.MemoListPopup;
 import com.quickmemo.plugin.new_ui.popup.MemoListPopupFactory;
 import com.quickmemo.plugin.new_ui.toast.CreatedMemoToast;
@@ -28,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+
+import static com.quickmemo.plugin.new_ui.memo.EmptyMemo.EMPTY_MEMO;
 
 public class NewMemoToolWindowFactory implements ToolWindowFactory {
     private static final int DEFAULT_SIZE = 400;
@@ -59,11 +62,7 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {
             Memo memo = selectedMemo.getMemo();
             memoService.deleteMemo(memo);
-            Memo first = memoService.getAllMemos()
-                    .stream()
-                    .findFirst()
-                    .orElseGet(Memo::createEmptyMemo);
-            selectedMemo.update(first);
+            selectFirstMemo(memoService, selectedMemo);
         });
 
         // main window
@@ -79,14 +78,22 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         mainWindowContent.setPreferredSize(DEFAULT_DIMENSION_SIZE);
         mainWindowContent.setSize(DEFAULT_DIMENSION_SIZE);
 
-        Content content = ContentFactory.getInstance()
-                .createContent(mainWindowContent, "", false);
-        toolWindow.getContentManager().addContent(content);
+        selectFirstMemo(memoService, selectedMemo);
 
         // TODO: Editor가 스스로 감지하도록 변경
         toolWindow.setType(ToolWindowType.FLOATING, null);
+        Content content = ContentFactory.getInstance()
+                .createContent(mainWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
         addEditorOpenListener(project);
+    }
+
+    private void selectFirstMemo(MemoService memoService, SelectedMemo selectedMemo) {
+        Memo first = memoService.getAllMemos()
+                .stream()
+                .findFirst()
+                .orElse(EMPTY_MEMO);
+        selectedMemo.update(first);
     }
 
     private MemoService createMemoService(Project project) {
@@ -111,7 +118,7 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
                 }
 
                 SwingUtilities.invokeLater(() -> {
-                    com.quickmemo.plugin.window.component.MemoEditor memoEditor = com.quickmemo.plugin.window.component.MemoEditor.getInstance();
+                    MemoEditor memoEditor = MemoEditor.getInstance();
                     memoEditor.requestFocusOnEditor();
                 });
             }

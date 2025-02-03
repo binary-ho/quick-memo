@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.new_ui;
+package com.quickmemo.plugin.new_ui.memo;
 
 import com.quickmemo.plugin.memo.Memo;
 
@@ -6,8 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.quickmemo.plugin.new_ui.memo.EmptyMemo.EMPTY_MEMO;
+
 public class SelectedMemo {
-    private static final Memo UNSELECTED_MEMO = Memo.createEmptyMemo();
+    private static final Memo UNSELECTED_MEMO = EMPTY_MEMO;
     private Memo selectedMemo;
 
     private static final SelectedMemo UNSELECTED = new SelectedMemo(UNSELECTED_MEMO);
@@ -44,7 +46,8 @@ public class SelectedMemo {
     }
 
     public boolean isUnselected() {
-        return this.equals(UNSELECTED);
+        Memo memo = this.getMemo();
+        return memo == null || memo.equals(UNSELECTED_MEMO);
     }
 
     public Memo getMemo() {
@@ -53,13 +56,10 @@ public class SelectedMemo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
         SelectedMemo that = (SelectedMemo) obj;
-        return this.selectedMemo.equals(that.selectedMemo);
+        return this.getMemo().equals(that.getMemo());
     }
 }

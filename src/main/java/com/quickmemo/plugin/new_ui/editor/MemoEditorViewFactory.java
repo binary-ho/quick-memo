@@ -1,7 +1,7 @@
 package com.quickmemo.plugin.new_ui.editor;
 
 import com.quickmemo.plugin.memo.Memo;
-import com.quickmemo.plugin.new_ui.SelectedMemo;
+import com.quickmemo.plugin.new_ui.memo.SelectedMemo;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
