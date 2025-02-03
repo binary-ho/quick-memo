@@ -7,6 +7,7 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.messages.MessageBusConnection;
 import com.quickmemo.plugin.application.MemoRepository;
 import com.quickmemo.plugin.application.MemoService;
 import com.quickmemo.plugin.infrastructure.MemoState;
@@ -92,6 +93,7 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         mainWindowContent.setPreferredSize(DEFAULT_DIMENSION_SIZE);
         mainWindowContent.setSize(DEFAULT_DIMENSION_SIZE);
 
+        // select first memo
         selectFirstMemo(memoService, selectedMemo);
 
         // TODO: Editor가 스스로 감지하도록 변경
@@ -99,11 +101,12 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         Content content = ContentFactory.getInstance()
                 .createContent(mainWindowContent, "", false);
         toolWindow.getContentManager().addContent(content);
-        addEditorOpenListener(project);
+        addEditorOpenListener(project, editor);
 
         resizeWindow(mainWindowContent);
     }
 
+    // TODO: memoservice 가 제공 하도록 변경
     private void selectFirstMemo(MemoService memoService, SelectedMemo selectedMemo) {
         Memo first = memoService.getAllMemos()
                 .stream()
@@ -118,27 +121,16 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         return new MemoService(repository);
     }
 
-    private void addEditorOpenListener(@NotNull Project project) {
-        project.getMessageBus().connect().subscribe(
-                ToolWindowManagerListener.TOPIC,
-                getWindowManagerListener()
-        );
+    private void addEditorOpenListener(Project project, MemoEditor memoEditor) {
+        MessageBusConnection connection = project.getMessageBus().connect();
+        connection.subscribe(ToolWindowManagerListener.TOPIC, createOpenWindowListener(memoEditor));
     }
 
-    private ToolWindowManagerListener getWindowManagerListener() {
-        return new ToolWindowManagerListener() {
-            @Override
-            public void toolWindowShown(@NotNull ToolWindow shownWindow) {
-                if (!WINDOW_NAME.equals(shownWindow.getId())) {
-                    return;
-                }
-
-                SwingUtilities.invokeLater(() -> {
-                    MemoEditor memoEditor = MemoEditor.getInstance();
-                    memoEditor.requestFocusOnEditor();
-                });
-            }
-        };
+    private ToolWindowManagerListener createOpenWindowListener(MemoEditor memoEditor) {
+        return OpenWindowListener.create(
+                WINDOW_NAME,
+                () -> SwingUtilities.invokeLater(memoEditor::requestFocusOnEditor)
+        );
     }
 
     private void resizeWindow(JPanel mainWindowContent) {
