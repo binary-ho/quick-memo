@@ -9,7 +9,7 @@ public class SelectedMemo {
     private Memo selectedMemo = ENPTY_MEMO;
 
     private static final SelectedMemo UNSELECTED = new SelectedMemo(ENPTY_MEMO);
-    private static final SelectedMemo INSTANCE = UNSELECTED;
+    private static final SelectedMemo INSTANCE = new SelectedMemo(ENPTY_MEMO);
 
     public static SelectedMemo getInstance() {
         return INSTANCE;
