@@ -40,7 +40,7 @@ public class Memo {
         }
     }
 
-    private static void validateContentSize(String content) {
+    private void validateContentSize(String content) {
         byte[] contentBytes = content.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         if (contentBytes.length >= MAX_CONTENT_SIZE_BYTES) {
             throw new IllegalArgumentException(

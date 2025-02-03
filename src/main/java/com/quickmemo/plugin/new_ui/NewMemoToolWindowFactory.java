@@ -12,6 +12,7 @@ import com.quickmemo.plugin.application.MemoService;
 import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.Memo;
+import com.quickmemo.plugin.memo.MemoLimitExceededException;
 import com.quickmemo.plugin.new_ui.button.CreateMemoButton;
 import com.quickmemo.plugin.new_ui.button.DeleteMemoButton;
 import com.quickmemo.plugin.new_ui.button.OpenMemoListButton;
@@ -19,6 +20,9 @@ import com.quickmemo.plugin.new_ui.editor.MemoEditor;
 import com.quickmemo.plugin.new_ui.editor.MemoEditorView;
 import com.quickmemo.plugin.new_ui.editor.MemoEditorViewFactory;
 import com.quickmemo.plugin.new_ui.memo.SelectedMemo;
+import com.quickmemo.plugin.new_ui.message.DeleteConfirm;
+import com.quickmemo.plugin.new_ui.message.MemoContentSizeErrorDialog;
+import com.quickmemo.plugin.new_ui.message.MemoCountErrorDialog;
 import com.quickmemo.plugin.new_ui.popup.MemoListPopup;
 import com.quickmemo.plugin.new_ui.popup.MemoListPopupFactory;
 import com.quickmemo.plugin.new_ui.toast.CreatedMemoToast;
@@ -53,22 +57,32 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
 
         // createMemoButton
         CreateMemoButton createMemoButton = new CreateMemoButton(() -> {
-            LocalDateTime createdAt = LocalDateTime.now();
-            Memo createdMemo = memoService.createEmptyMemo(createdAt);
-            selectedMemo.update(createdMemo);
+            try {
+                LocalDateTime createdAt = LocalDateTime.now();
+                Memo createdMemo = memoService.createEmptyMemo(createdAt);
+                selectedMemo.update(createdMemo);
+            } catch (MemoLimitExceededException e) {
+                MemoCountErrorDialog.show();
+            }
         }, CreatedMemoToast::show);
 
         // deleteMemoButton
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {
-            Memo memo = selectedMemo.getMemo();
-            memoService.deleteMemo(memo);
-            selectFirstMemo(memoService, selectedMemo);
+            if (DeleteConfirm.confirm()) {
+                Memo memo = selectedMemo.getMemo();
+                memoService.deleteMemo(memo);
+                selectFirstMemo(memoService, selectedMemo);
+            }
         });
 
         // main window
         QuickMemoWindow quickMemoWindow = new QuickMemoWindow();
         MainToolbar quickMemoToolbar = ToolbarFactory.createQuickMemoToolbar(quickMemoWindow.getContent(), createMemoButton, deleteMemoButton, openMemoListButton);
-        MemoEditorView memoEditorView = MemoEditorViewFactory.create(editor, selectedMemo, memoService::updateMemo);
+        MemoEditorView memoEditorView = MemoEditorViewFactory.create(editor,
+                selectedMemo,
+                memoService::updateMemo,
+                MemoContentSizeErrorDialog::show
+        );
 
         JPanel mainWindowContent = quickMemoWindow.getContent();
         mainWindowContent.add(quickMemoToolbar.getMemoToolbar(), BorderLayout.NORTH);
