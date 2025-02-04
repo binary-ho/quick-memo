@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.quickmemo.plugin</id>
     <name>Quick Memo</name>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
     <idea-version since-build="232" until-build="251.*"/>
 
@@ -32,6 +32,9 @@
         <li>Added toast popup notification when creating a new memo</li>
         <li>Added default padding to text input area in TextArea for improved readability</li>
         <li>Added auto-focus to editor when QuickMemo window opens.</li>
+        <li>Refactored internal UI structure</li>
+        <li>Added alert when memo creation fails</li>
+        <li>Added alert when no memo to delete</li>
       </ol>
       <br>
       <ol>
@@ -40,6 +43,9 @@
         <li>메모 추가시 toast popup으로 알림</li>
         <li>TextArea에 기본 패딩 추가 (기존엔 딱 붙어 있었다.)</li>
         <li>QuickMemo 창이 열릴 때 에디터에 자동 포커스 추가</li>
+        <li> 내부 ui 구조 변경</li>
+        <li> 메모 추가 실패시 Alert 제공</li>
+        <li> 삭제할 메모가 없을 때 Alert 제공</li>
       </ol>
     ]]></change-notes>
 
