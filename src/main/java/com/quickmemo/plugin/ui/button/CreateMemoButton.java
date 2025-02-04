@@ -3,6 +3,7 @@ package com.quickmemo.plugin.ui.button;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.quickmemo.plugin.memo.MemoLimitExceededException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -18,16 +19,20 @@ public class CreateMemoButton extends ActionButton {
     private static final String NEW_MEMO_BUTTON_DESCRIPTION = "Create new memo";
     private static final Icon NEW_MEMO_BUTTON_ICON = AllIcons.General.Add;
 
-    public CreateMemoButton(Runnable action, Consumer<Component> afterPerformed) {
-        this.createMemoAction = createAction(action, afterPerformed);
+    public CreateMemoButton(Runnable createAction, Consumer<Component> onCreateSuccess, Runnable onCreateFailed) {
+        this.createMemoAction = createAction(createAction, onCreateSuccess, onCreateFailed);
     }
 
-    private AnAction createAction(Runnable runnable, Consumer<Component> listener) {
+    private AnAction createAction(Runnable createAction, Consumer<Component> listener, Runnable actionFaild) {
         return new AnAction(NEW_MEMO_BUTTON_NAME, NEW_MEMO_BUTTON_DESCRIPTION, NEW_MEMO_BUTTON_ICON) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent event) {
-                runnable.run();
-                acceptIfMouseEvent(event, listener);
+                try {
+                    createAction.run();
+                    acceptIfMouseEvent(event, listener);
+                } catch (MemoLimitExceededException exception) {
+                    actionFaild.run();
+                }
             }
         };
     }

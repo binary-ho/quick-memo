@@ -13,7 +13,6 @@ import com.quickmemo.plugin.application.MemoService;
 import com.quickmemo.plugin.infrastructure.MemoState;
 import com.quickmemo.plugin.infrastructure.MemoStateRepository;
 import com.quickmemo.plugin.memo.Memo;
-import com.quickmemo.plugin.memo.MemoLimitExceededException;
 import com.quickmemo.plugin.ui.button.CreateMemoButton;
 import com.quickmemo.plugin.ui.button.DeleteMemoButton;
 import com.quickmemo.plugin.ui.button.OpenMemoListButton;
@@ -59,14 +58,10 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
 
         // createMemoButton
         CreateMemoButton createMemoButton = new CreateMemoButton(() -> {
-            try {
-                LocalDateTime createdAt = LocalDateTime.now();
-                Memo createdMemo = memoService.createEmptyMemo(createdAt);
-                selectedMemo.update(createdMemo);
-            } catch (MemoLimitExceededException e) {
-                MemoCountErrorDialog.show();
-            }
-        }, CreatedMemoToast::show);
+            LocalDateTime createdAt = LocalDateTime.now();
+            Memo createdMemo = memoService.createEmptyMemo(createdAt);
+            selectedMemo.update(createdMemo);
+        }, CreatedMemoToast::show, MemoCountErrorDialog::show);
 
         // deleteMemoButton
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {

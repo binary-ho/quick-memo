@@ -8,6 +8,8 @@ import java.util.List;
 public final class MemoService {
     private final MemoRepository memoRepository;
     private static final String WELCOME_MEMO = """
+    Welcome!
+    
     default-keymap:
     - macOS: Option + M
     - windows/linux: Ctrl + Q
@@ -19,7 +21,6 @@ public final class MemoService {
         initializeDefaultMemoIfEmpty();
     }
 
-    // TODO: id를 할당하는 책임은 누가?
     public void createNewMemo(String content, LocalDateTime createdAt) {
         Memo memo = Memo.createFrom(content, createdAt);
         memoRepository.save(memo);
