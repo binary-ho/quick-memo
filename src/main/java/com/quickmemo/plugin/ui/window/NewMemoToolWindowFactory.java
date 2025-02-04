@@ -24,6 +24,7 @@ import com.quickmemo.plugin.ui.memo.SelectedMemo;
 import com.quickmemo.plugin.ui.message.DeleteConfirm;
 import com.quickmemo.plugin.ui.message.MemoContentSizeErrorDialog;
 import com.quickmemo.plugin.ui.message.MemoCountErrorDialog;
+import com.quickmemo.plugin.ui.message.NoDeleteMemoErrorDialog;
 import com.quickmemo.plugin.ui.popup.MemoListPopup;
 import com.quickmemo.plugin.ui.popup.MemoListPopupFactory;
 import com.quickmemo.plugin.ui.toast.CreatedMemoToast;
@@ -69,6 +70,11 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
 
         // deleteMemoButton
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {
+            if (selectedMemo.isUnselected()) {
+                NoDeleteMemoErrorDialog.show();
+                return;
+            }
+
             if (DeleteConfirm.confirm()) {
                 Memo memo = selectedMemo.getMemo();
                 memoService.deleteMemo(memo);
