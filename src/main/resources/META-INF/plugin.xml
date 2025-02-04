@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.quickmemo.plugin</id>
     <name>Quick Memo</name>
-    <version>1.1.3</version>
+    <version>1.2.0</version>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
     <idea-version since-build="232" until-build="251.*"/>
 
