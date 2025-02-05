@@ -2,7 +2,6 @@ package com.quickmemo.plugin.ui.editor;
 
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
-import com.intellij.util.ui.JBEmptyBorder;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
@@ -17,8 +16,6 @@ public class MemoEditor extends JPanel {
 
     private static final int TOP_BOTTOM_PADDING = 8;
     private static final int LEFT_RIGHT_PADDING = 10;
-    private static final JBEmptyBorder INPUT_AREA_PADDING = JBUI.Borders
-            .empty(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING);
 
     public static MemoEditor getInstance() {
         return INSTANCE;
@@ -35,7 +32,7 @@ public class MemoEditor extends JPanel {
         area.setFont(area.getFont().deriveFont((float) JBUI.scale(14)));
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
-        area.setBorder(INPUT_AREA_PADDING);
+        area.setMargin(JBUI.insets(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING));
         return area;
     }
 
