@@ -1,4 +1,4 @@
-package com.quickmemo.plugin.ui.message;
+package com.quickmemo.plugin.ui.dialog;
 
 import com.intellij.openapi.ui.Messages;
 import com.quickmemo.plugin.constant.DialogConstants;

@@ -20,7 +20,7 @@ import com.quickmemo.plugin.ui.editor.MemoEditor;
 import com.quickmemo.plugin.ui.editor.MemoEditorView;
 import com.quickmemo.plugin.ui.editor.MemoEditorViewFactory;
 import com.quickmemo.plugin.ui.memo.SelectedMemo;
-import com.quickmemo.plugin.ui.message.*;
+import com.quickmemo.plugin.ui.dialog.*;
 import com.quickmemo.plugin.ui.popup.MemoListPopup;
 import com.quickmemo.plugin.ui.popup.MemoListPopupFactory;
 import com.quickmemo.plugin.ui.toolbar.MainToolbar;
