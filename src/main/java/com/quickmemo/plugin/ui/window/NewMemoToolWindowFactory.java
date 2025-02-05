@@ -20,13 +20,9 @@ import com.quickmemo.plugin.ui.editor.MemoEditor;
 import com.quickmemo.plugin.ui.editor.MemoEditorView;
 import com.quickmemo.plugin.ui.editor.MemoEditorViewFactory;
 import com.quickmemo.plugin.ui.memo.SelectedMemo;
-import com.quickmemo.plugin.ui.message.DeleteConfirm;
-import com.quickmemo.plugin.ui.message.MemoContentSizeErrorDialog;
-import com.quickmemo.plugin.ui.message.MemoCountErrorDialog;
-import com.quickmemo.plugin.ui.message.NoDeleteMemoErrorDialog;
+import com.quickmemo.plugin.ui.message.*;
 import com.quickmemo.plugin.ui.popup.MemoListPopup;
 import com.quickmemo.plugin.ui.popup.MemoListPopupFactory;
-import com.quickmemo.plugin.ui.toast.CreatedMemoToast;
 import com.quickmemo.plugin.ui.toolbar.MainToolbar;
 import com.quickmemo.plugin.ui.toolbar.ToolbarFactory;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +57,7 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
             LocalDateTime createdAt = LocalDateTime.now();
             Memo createdMemo = memoService.createEmptyMemo(createdAt);
             selectedMemo.update(createdMemo);
-        }, CreatedMemoToast::show, MemoCountErrorDialog::show);
+        }, CreatedMemoDialog::show, MemoCountErrorDialog::show);
 
         // deleteMemoButton
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {
