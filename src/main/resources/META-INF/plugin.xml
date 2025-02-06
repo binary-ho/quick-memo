@@ -56,7 +56,7 @@
                     secondary="true"
                     icon="/icons/memo.svg"
                     anchor="right"
-                    factoryClass="com.quickmemo.plugin.ui.window.NewMemoToolWindowFactory"
+                    factoryClass="com.quickmemo.plugin.ui.window.MemoToolWindowFactory"
                     canCloseContents="false"/>
     </extensions>
 

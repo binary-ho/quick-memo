@@ -33,7 +33,7 @@ import java.time.LocalDateTime;
 
 import static com.quickmemo.plugin.ui.memo.EmptyMemo.EMPTY_MEMO;
 
-public class NewMemoToolWindowFactory implements ToolWindowFactory {
+public class MemoToolWindowFactory implements ToolWindowFactory {
     private static final int DEFAULT_SIZE = 400;
     private static final Dimension DEFAULT_DIMENSION_SIZE = new Dimension(DEFAULT_SIZE, DEFAULT_SIZE);
     public static final String WINDOW_NAME = "QuickMemo";
@@ -57,16 +57,16 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
             LocalDateTime createdAt = LocalDateTime.now();
             Memo createdMemo = memoService.createEmptyMemo(createdAt);
             selectedMemo.update(createdMemo);
-        }, CreatedMemoDialog::show, MemoCountErrorDialog::show);
+        }, () -> CreatedMemoDialog.show(project), () -> MemoCountErrorDialog.show(project));
 
         // deleteMemoButton
         DeleteMemoButton deleteMemoButton = new DeleteMemoButton(() -> {
             if (selectedMemo.isUnselected()) {
-                NoDeleteMemoErrorDialog.show();
+                NoDeleteMemoErrorDialog.show(project);
                 return;
             }
 
-            if (DeleteConfirm.confirm()) {
+            if (DeleteConfirm.confirm(project)) {
                 Memo memo = selectedMemo.getMemo();
                 memoService.deleteMemo(memo);
                 selectFirstMemo(memoService, selectedMemo);
@@ -79,7 +79,7 @@ public class NewMemoToolWindowFactory implements ToolWindowFactory {
         MemoEditorView memoEditorView = MemoEditorViewFactory.create(editor,
                 selectedMemo,
                 memoService::updateMemo,
-                MemoContentSizeErrorDialog::show
+                () -> MemoContentSizeErrorDialog.show(project)
         );
 
         JPanel mainWindowContent = quickMemoWindow.getContent();
