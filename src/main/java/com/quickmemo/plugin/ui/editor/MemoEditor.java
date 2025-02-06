@@ -11,13 +11,20 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
-    private static final MemoEditor INSTANCE = new MemoEditor();
+    private static volatile MemoEditor INSTANCE;
     private final JBTextArea textArea;
 
     private static final int TOP_BOTTOM_PADDING = 8;
     private static final int LEFT_RIGHT_PADDING = 10;
 
     public static MemoEditor getInstance() {
+        if (INSTANCE == null) {
+            synchronized (MemoEditor.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new MemoEditor();
+                }
+            }
+        }
         return INSTANCE;
     }
 
