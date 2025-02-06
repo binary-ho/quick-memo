@@ -36,7 +36,10 @@ public class MemoEditor extends JPanel {
 
     private JBTextArea createTextArea() {
         JBTextArea area = new JBTextArea();
-        area.setFont(area.getFont().deriveFont((float) JBUI.scale(14)));
+
+        FontHolder fontHolder = new FontHolder();
+        area.setFont(fontHolder.getEditorFont());
+
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setMargin(JBUI.insets(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING));
