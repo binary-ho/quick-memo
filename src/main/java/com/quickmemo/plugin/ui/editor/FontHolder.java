@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FontHolder {
-    private static final Font DEFAULT_GLOBAL = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+    private static final String JETBRAINS_MONO = "JetBrains Mono";
+    private static final Font DEFAULT_GLOBAL = new Font(JETBRAINS_MONO, Font.PLAIN, 14);
     private static final List<String> KOREAN_FONTS = List.of(
             // for macOS
             "Apple SD GothicNeo Neo",
@@ -26,19 +27,18 @@ public class FontHolder {
     );
 
     public static final char VALIDATE_KOREAN_CHAR = '한';
+    public static final String FONT_SPEC_FORMAT = "%s, %s-PLAIN-%d";
 
     public Font getEditorFont() {
         Font editorFont = getIDEFont();
 
         // find korean for korean users..
         String koreanFont = getKoreanFont();
-        String fontFamily = editorFont.getFamily() + ", " + koreanFont;
-        return Font.decode(fontFamily + "-PLAIN-" + editorFont.getSize());
+        return getFont(editorFont, koreanFont);
     }
 
     private String getKoreanFont() {
         String koreanFont =  findKoreanFont();
-        System.out.println("[DEBUG] Korean font: " + koreanFont);
         if (koreanFont != null) {
             return koreanFont;
         }
@@ -92,5 +92,15 @@ public class FontHolder {
     private boolean canDisplay(String koreanFont) {
         Font font = new Font(koreanFont, Font.PLAIN, 1);
         return font.canDisplay(VALIDATE_KOREAN_CHAR);
+    }
+
+    private Font getFont(Font editorFont, String koreanFont) {
+        String fontSpec = String.format(FONT_SPEC_FORMAT,
+                editorFont.getFamily(),
+                koreanFont,
+                editorFont.getSize()
+        );
+
+        return Font.decode(fontSpec);
     }
 }
