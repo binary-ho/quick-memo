@@ -4,7 +4,7 @@
     <name>Quick Memo</name>
     <version>1.2.1</version>
     <vendor email="binaryhoho@gmail.com" url="https://github.com/binary-ho">binary-ho</vendor>
-    <idea-version since-build="232" until-build="251.*"/>
+    <idea-version since-build="223" until-build="251.*"/>
 
     <description><![CDATA[
     <p>Just open to take notes in your IDE</p>
