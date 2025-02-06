@@ -11,13 +11,20 @@ import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
 public class MemoEditor extends JPanel {
-    private static final MemoEditor INSTANCE = new MemoEditor();
+    private static volatile MemoEditor INSTANCE;
     private final JBTextArea textArea;
 
     private static final int TOP_BOTTOM_PADDING = 8;
     private static final int LEFT_RIGHT_PADDING = 10;
 
     public static MemoEditor getInstance() {
+        if (INSTANCE == null) {
+            synchronized (MemoEditor.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new MemoEditor();
+                }
+            }
+        }
         return INSTANCE;
     }
 
@@ -29,7 +36,10 @@ public class MemoEditor extends JPanel {
 
     private JBTextArea createTextArea() {
         JBTextArea area = new JBTextArea();
-        area.setFont(area.getFont().deriveFont((float) JBUI.scale(14)));
+
+        FontHolder fontHolder = new FontHolder();
+        area.setFont(fontHolder.getEditorFont());
+
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setMargin(JBUI.insets(TOP_BOTTOM_PADDING, LEFT_RIGHT_PADDING));
