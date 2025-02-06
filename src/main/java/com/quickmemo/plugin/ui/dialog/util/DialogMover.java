@@ -11,7 +11,7 @@ import java.awt.*;
 public class DialogMover {
     private static final String TOOL_WINDOW_ID = "QuickMemo";
 
-    static void moveDialogOnCenterOfToolWindow(Project project) {
+    static void centerDialogInToolWindow(Project project) {
         ToolWindow toolWindow = ToolWindowManager.getInstance(project)
                 .getToolWindow(TOOL_WINDOW_ID);
         if (toolWindow == null || !toolWindow.isVisible()) {
@@ -36,11 +36,11 @@ public class DialogMover {
                 return;
             }
 
-            setDialogOnCenterOfWindow(window, activeWindow);
+            centerDialogInActiveWindow(window, activeWindow);
         });
     }
 
-    private static void setDialogOnCenterOfWindow(Window window, Window activeWindow) {
+    private static void centerDialogInActiveWindow(Window window, Window activeWindow) {
         Rectangle bounds = window.getBounds();
         Point location = window.getLocationOnScreen();
 

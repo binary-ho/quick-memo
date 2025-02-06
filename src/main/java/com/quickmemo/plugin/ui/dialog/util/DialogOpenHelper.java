@@ -6,12 +6,12 @@ import java.util.function.BooleanSupplier;
 
 public class DialogOpenHelper {
     public static void showDialogOnCenterOfWindow(Project project, Runnable showDialog) {
-        DialogMover.moveDialogOnCenterOfToolWindow(project);
+        DialogMover.centerDialogInToolWindow(project);
         showDialog.run();
     }
 
     public static boolean showYesNoDialog(Project project, BooleanSupplier supplier) {
-        DialogMover.moveDialogOnCenterOfToolWindow(project);
+        DialogMover.centerDialogInToolWindow(project);
         return supplier.getAsBoolean();
     }
 }
