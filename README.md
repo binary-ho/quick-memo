@@ -1,5 +1,9 @@
 # Quick Memo - Jetbrains IDE Plugin
 
+### Unique Downloaders: 
+
+<img alt="JetBrains Plugin Downloads" src="https://img.shields.io/jetbrains/plugin/d/com.quickmemo.plugin?style=for-the-badge&logo=intellijidea&label=Unique%20Downloaders%20-%3E&labelColor=%23000000&color=%23000000&link=https%3A%2F%2Fplugins.jetbrains.com%2Fplugin%2F26432-quick-memo%2Fedit">
+
 ## Just open to take notes
 
 ![Image](https://github.com/user-attachments/assets/6525ad94-cecb-4e6d-843e-6f409fda50c3)
