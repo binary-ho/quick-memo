@@ -24,7 +24,7 @@ dependencies {
 }
 
 intellij {
-    version.set("2023.3")
+    version.set("2022.3")
     type.set("IC")
     plugins.set(listOf("com.intellij.platform.images"))
 }
@@ -37,7 +37,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("233")
+        sinceBuild.set("223")
         untilBuild.set("251.*")
         version.set(project.version.toString())
     }
